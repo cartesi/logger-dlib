@@ -7,7 +7,7 @@ import "./Merkle.sol";
 /// @title Data Availability
 /// @author Stephen Chen
 /// @notice A contract that offers data availability
-/// @dev This contract is unsafe.
+/// @dev This contract is not well-tested yet.
 contract DataAvailability is Decorated {
   // the caller can either provide the full data to generate the Merkle tree root
   // or combine the existing hashes in the history to a deeper tree
