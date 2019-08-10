@@ -1,11 +1,11 @@
 import sys
 from web3 import Web3
 
-class DataAvailability:
+class Logger:
 
-    def __init__(self, endpoint, da_address, da_abi):
+    def __init__(self, endpoint, logger_address, logger_abi):
         self.__w3 = Web3(Web3.HTTPProvider(endpoint, request_kwargs={'timeout': 60}))
-        self.__da = self.__w3.eth.contract(address=da_address, abi=da_abi)
+        self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
         self.__bytes_of_word = 8
         self.__debug = False
 
@@ -21,20 +21,20 @@ class DataAvailability:
     def __recover_data_from_root(self, root):
 
         try:
-            merkle_filter = self.__da.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root':root})
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root':root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
                 return (True, merkle_filter.get_all_entries()[0]['args']['_data'])
             
             data = []
-            merkle_filter = self.__da.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root':root})
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root':root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
                 for index in merkle_filter.get_all_entries()[0]['args']['_indices']:
 
-                    retrieve_filter = self.__da.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index':index})
+                    retrieve_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index':index})
                     if(len(retrieve_filter.get_all_entries()) == 0):
-                        retrieve_filter = self.__da.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index':index})
+                        retrieve_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index':index})
                     root_at_index = retrieve_filter.get_all_entries()[0]['args']['_root']
 
                     (ret_at_index, data_at_index) = self.__recover_data_from_root(root_at_index)
@@ -56,14 +56,14 @@ class DataAvailability:
             print("Couldn't connect to node, exiting")
             sys.exit(1)
                             
-    def submit_indices_to_da(self, indices):
+    def submit_indices_to_logger(self, indices):
 
         try:
-            tx_hash = self.__da.functions.calculateMerkleRootFromHistory(self.__page_log_2_size, indices).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
+            tx_hash = self.__logger.functions.calculateMerkleRootFromHistory(self.__page_log_2_size, indices).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
-            merkle_filter = self.__da.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock='latest')
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock='latest')
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
             merkle_indices = merkle_filter.get_all_entries()[0]['args']['_indices']
@@ -79,14 +79,14 @@ class DataAvailability:
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
                             
-    def submit_data_to_da(self, data):
+    def submit_data_to_logger(self, data):
 
         try:
-            tx_hash = self.__da.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
+            tx_hash = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
-            merkle_filter = self.__da.events.MerkleRootCalculatedFromData.createFilter(fromBlock='latest')
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock='latest')
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
             merkle_data = merkle_filter.get_all_entries()[0]['args']['_data']
@@ -111,13 +111,13 @@ class DataAvailability:
         for b in self.__bytes_from_file(filename):
             data.append(b)
             if(len(data) == self.__page_size):
-                (index, root) = self.submit_data_to_da(data)
+                (index, root) = self.submit_data_to_logger(data)
                 indices.append(index)
                 data = []
                 count -= 1
 
         if(len(data) != 0):
-            (index, root) = self.submit_data_to_da(data)
+            (index, root) = self.submit_data_to_logger(data)
             indices.append(index)
             count -= 1
 
@@ -126,12 +126,12 @@ class DataAvailability:
             data.append(bytes(self.__bytes_of_word))
 
         while(count > 0):
-            (index, root) = self.submit_data_to_da(data)
+            (index, root) = self.submit_data_to_logger(data)
             indices.append(index)
             count -= 1
 
         if(len(indices) > 1):
-            (index, root) = self.submit_indices_to_da(indices)
+            (index, root) = self.submit_indices_to_logger(indices)
         
         return root
             
@@ -146,4 +146,4 @@ class DataAvailability:
                 for b in data:
                     f.write(b)
         else:
-            print("The Merkle root is not found in the DataAvailability history")
+            print("The Merkle root is not found in the Logger history")
