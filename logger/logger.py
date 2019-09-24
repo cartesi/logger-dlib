@@ -74,7 +74,7 @@ class Logger:
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock='latest')
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber'])
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
             merkle_indices = merkle_filter.get_all_entries()[0]['args']['_indices']
@@ -97,7 +97,7 @@ class Logger:
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock='latest')
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber'])
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
             merkle_data = merkle_filter.get_all_entries()[0]['args']['_data']
