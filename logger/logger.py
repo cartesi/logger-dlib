@@ -113,7 +113,7 @@ class Logger:
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
 
-    def upload_file(self, filename):
+    def submit_file(self, filename):
 
         data = []
         indices = []

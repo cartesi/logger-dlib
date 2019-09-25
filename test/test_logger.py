@@ -68,7 +68,7 @@ assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0
 input_file = "test_file"
 output_file = "recovered_file"
 
-root = test_logger.upload_file(input_file)
+root = test_logger.submit_file(input_file)
 test_logger.download_file(root, output_file)
 
 assert filecmp.cmp(input_file, output_file), "Files not match"
@@ -105,7 +105,7 @@ assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0
 input_file = "test_file"
 output_file = "recovered_file"
 
-root = test_logger.upload_file(input_file)
+root = test_logger.submit_file(input_file)
 test_logger.download_file(root, output_file)
 
 assert filecmp.cmp(input_file, output_file), "Files not match"
