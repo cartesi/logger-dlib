@@ -22,7 +22,7 @@ import json
 
 #So the cartesi GRPC modules are in path
 import sys
-sys.path.insert(0,'lib/grpc-interfaces/py')
+sys.path.insert(0,'../lib/grpc-interfaces/py')
 
 import core_pb2
 import cartesi_base_pb2
@@ -72,7 +72,7 @@ def run():
                 #Submit
                 print("\n\n\SUBMIT TESTS\n\n\n")
 
-                request = logger_high_pb2.FilePath(path="./submits_and_downloads/test_file")
+                request = logger_high_pb2.FilePath(path="../submits_and_downloads/test_file")
                 print("Asking to submit a new file")
                 print("Server response:\n{}".format(stub_high.SubmitFile(request).content.hex()))
             elif mode == "download":

@@ -23,7 +23,7 @@ import os
 
 #So the cartesi GRPC modules are in path
 import sys
-sys.path.insert(0,'lib/grpc-interfaces/py')
+sys.path.insert(0,'../lib/grpc-interfaces/py')
 
 import logger_high_pb2_grpc
 import logger_high_pb2
@@ -84,7 +84,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             LOGGER.info("Download file with root hash: {}".format(root))
 
             path = self.logger_registry_manager.download_file(root)
-            new_path = "./submits_and_downloads/" + path
+            new_path = "../submits_and_downloads/" + path
 
             # move the file if is first time download
             if os.path.exists(path) and os.path.isfile(path):

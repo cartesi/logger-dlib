@@ -10,9 +10,8 @@
 # specific language governing permissions and limitations under the License.
 
 import sys
-sys.path.append('./logger/')
+sys.path.append('../logger/')
 import json
-import filecmp
 from logger import Logger
 
 # start of main
@@ -22,10 +21,10 @@ if len(sys.argv) != 3:
     print("Or: python simple_logger.py download <root hash>")
     sys.exit(1)
 
-with open('./build/contracts/Logger.json') as json_file:
+with open('../build/contracts/Logger.json') as json_file:
     logger_data = json.load(json_file)
 
-with open('./test/deployedAddresses.json') as json_file:
+with open('../test/deployedAddresses.json') as json_file:
     deployed_address = json.load(json_file)
 
 # TODO: Make endpoint and page_log2_size tree_log2_size configurable

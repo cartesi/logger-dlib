@@ -1,0 +1,126 @@
+2019-10-03 11:31:03,533 139968956401472 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-03 11:31:46,680 139968843155200 INFO __main__ 62 - SubmitFile: Submit file with path: ./submits_and_downloads/test_file
+2019-10-03 11:31:46,681 139968843155200 ERROR logger_registry 44 - submit_file: The submit file path: ./submits_and_downloads/test_file is not valid
+2019-10-03 11:31:46,682 139968843155200 ERROR __main__ 69 - SubmitFile: The submit file path: ./submits_and_downloads/test_file is not valid
+2019-10-03 11:36:56,350 139968956401472 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-03 11:36:56,351 139968956401472 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-03 11:36:56,353 139968956401472 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-03 11:36:56,354 139968956401472 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-03 11:36:56,354 139968956401472 INFO __main__ 138 - serve: Server stopped
+2019-10-03 11:37:50,938 140734519904064 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-03 11:37:59,270 140734199957248 INFO __main__ 62 - SubmitFile: Submit file with path: ../submits_and_downloads/test_file
+2019-10-03 11:37:59,270 140734199957248 DEBUG logger_registry 76 - register_action: Acquiring registry submit global lock
+2019-10-03 11:37:59,271 140734199957248 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:37:59,271 140734199957248 INFO logger_registry 92 - register_action: Issuing: python simple_logger.py submit ../submits_and_downloads/test_file&...
+2019-10-03 11:37:59,300 140734199957248 ERROR logger_registry 51 - submit_file: Result is not yet ready for submit file: ../submits_and_downloads/test_file
+2019-10-03 11:37:59,301 140734199957248 ERROR __main__ 69 - SubmitFile: Result is not yet ready for submit file: ../submits_and_downloads/test_file
+2019-10-03 11:38:06,381 140734191503104 INFO __main__ 62 - SubmitFile: Submit file with path: ../submits_and_downloads/test_file
+2019-10-03 11:38:06,382 140734191503104 DEBUG logger_registry 76 - register_action: Acquiring registry submit global lock
+2019-10-03 11:38:06,382 140734191503104 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:38:14,667 140734183048960 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:14,667 140734183048960 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:38:14,667 140734183048960 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:38:14,668 140734183048960 INFO logger_registry 92 - register_action: Issuing: python simple_logger.py download 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24&...
+2019-10-03 11:38:14,696 140734183048960 ERROR logger_registry 63 - download_file: Result is not yet ready for download file: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:14,697 140734183048960 ERROR __main__ 97 - DownloadFile: Result is not yet ready for download file: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:18,998 140734191503104 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:18,999 140734191503104 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:38:18,999 140734191503104 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:38:19,004 140734191503104 ERROR __main__ 102 - DownloadFile: An exception occurred: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+Traceback: Traceback (most recent call last):
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 544, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download' -> './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manager_server.py", line 91, in DownloadFile
+    shutil.move(path, new_path)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 558, in move
+    copy_function(src, real_dst)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 257, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 121, in copyfile
+    with open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+2019-10-03 11:38:20,629 140734199957248 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:20,629 140734199957248 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:38:20,629 140734199957248 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:38:20,630 140734199957248 ERROR __main__ 102 - DownloadFile: An exception occurred: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+Traceback: Traceback (most recent call last):
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 544, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download' -> './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manager_server.py", line 91, in DownloadFile
+    shutil.move(path, new_path)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 558, in move
+    copy_function(src, real_dst)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 257, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 121, in copyfile
+    with open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+2019-10-03 11:38:28,604 140734183048960 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:38:28,604 140734183048960 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:38:28,604 140734183048960 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:38:28,606 140734183048960 ERROR __main__ 102 - DownloadFile: An exception occurred: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+Traceback: Traceback (most recent call last):
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 544, in move
+    os.rename(src, real_dst)
+FileNotFoundError: [Errno 2] No such file or directory: '599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download' -> './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "manager_server.py", line 91, in DownloadFile
+    shutil.move(path, new_path)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 558, in move
+    copy_function(src, real_dst)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 257, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/home/stephen/.virtualenvs/logger/lib/python3.6/shutil.py", line 121, in copyfile
+    with open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: './submits_and_downloads/599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24.download'
+
+2019-10-03 11:39:28,674 140734519904064 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-03 11:39:28,674 140734519904064 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-03 11:39:28,675 140734519904064 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-03 11:39:28,676 140734519904064 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-03 11:39:28,676 140734519904064 INFO __main__ 138 - serve: Server stopped
+2019-10-03 11:39:30,164 139694497072960 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-03 11:39:31,953 139694392608512 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:39:31,953 139694392608512 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:39:31,953 139694392608512 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:39:31,954 139694392608512 INFO logger_registry 92 - register_action: Issuing: python simple_logger.py download 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24&...
+2019-10-03 11:39:31,984 139694392608512 ERROR logger_registry 63 - download_file: Result is not yet ready for download file: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:39:31,986 139694392608512 ERROR __main__ 97 - DownloadFile: Result is not yet ready for download file: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:39:35,460 139694392608512 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:39:35,461 139694392608512 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:39:35,461 139694392608512 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:39:40,237 139694384154368 INFO __main__ 62 - SubmitFile: Submit file with path: ../submits_and_downloads/test_file
+2019-10-03 11:39:40,238 139694384154368 DEBUG logger_registry 76 - register_action: Acquiring registry submit global lock
+2019-10-03 11:39:40,238 139694384154368 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:39:40,239 139694384154368 INFO logger_registry 92 - register_action: Issuing: python simple_logger.py submit ../submits_and_downloads/test_file&...
+2019-10-03 11:39:40,265 139694384154368 ERROR logger_registry 51 - submit_file: Result is not yet ready for submit file: ../submits_and_downloads/test_file
+2019-10-03 11:39:40,266 139694384154368 ERROR __main__ 69 - SubmitFile: Result is not yet ready for submit file: ../submits_and_downloads/test_file
+2019-10-03 11:39:41,869 139694392608512 INFO __main__ 62 - SubmitFile: Submit file with path: ../submits_and_downloads/test_file
+2019-10-03 11:39:41,870 139694392608512 DEBUG logger_registry 76 - register_action: Acquiring registry submit global lock
+2019-10-03 11:39:41,871 139694392608512 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 11:39:43,801 139694375700224 INFO __main__ 84 - DownloadFile: Download file with root hash: 599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24
+2019-10-03 11:39:43,801 139694375700224 DEBUG logger_registry 76 - register_action: Acquiring registry download global lock
+2019-10-03 11:39:43,802 139694375700224 DEBUG logger_registry 78 - register_action: Lock acquired
+2019-10-03 20:10:07,347 139694497072960 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-03 20:10:07,352 139694497072960 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-03 20:10:07,352 139694497072960 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-03 20:10:07,361 139694497072960 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-03 20:10:07,362 139694497072960 INFO __main__ 138 - serve: Server stopped
