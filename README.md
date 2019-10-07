@@ -58,12 +58,12 @@ The above codes call the `submit_indices_to_logger` with a list of indices. The 
 input_file = "test_file"
 output_file = "recovered_file"
 
-root = test_logger.upload_file(input_file)
+root = test_logger.submit_file(input_file)
 test_logger.download_file(root, output_file)
 
 assert filecmp.cmp(input_file, output_file), "Files not match"
 ```
-The above codes call the `upload_file` with a file existing on the machine. This function will automatically handles the details of submitting raw data to the On-chain Logger. A root hash of the constructed merkle tree will be returned. Then call the `download_file` with the root hash just received and the destination path to write to the file. The two files should be identical.
+The above codes call the `submit_file` with a file existing on the machine. This function will automatically handles the details of submitting raw data to the On-chain Logger. A root hash of the constructed merkle tree will be returned. Then call the `download_file` with the root hash just received and the destination path to write to the file. The two files should be identical.
 
 ## Testing with the grpc server using test client (integration test)
 
@@ -123,20 +123,23 @@ $ python manager_server.py
 
 The server has a couple of options to customize it's behavior, you can check them using the -h option:
 ```console
-python manager_server.py -h
-usage: manager_server.py [-h] [--address ADDRESS] [--port PORT] [--defective]
+$ python manager_server.py -h
+usage: manager_server.py [-h] [--address ADDRESS] [--port PORT]
+                         [--blockchain-address BLOCKCHAIN_ADDRESS]
+                         [--blockchain-port BLOCKCHAIN_PORT]
 
 Instantiates a logger manager server, responsible for managing and interacting
-with Logger contract
+with logger contract
 
 optional arguments:
   -h, --help            show this help message and exit
   --address ADDRESS, -a ADDRESS
                         Address to listen (default: localhost)
   --port PORT, -p PORT  Port to listen (default: 50051)
-  --blockchain-address ADDRESS, -ba ADDRESS
-                        Address of blockchain that logger connects to (default: 127.0.0.1)
-  --blockchain-port PORT, -bp PORT  Port of blockchain that logger connects to (default: 8545)
+  --blockchain-address BLOCKCHAIN_ADDRESS, -ba BLOCKCHAIN_ADDRESS
+                        Address of blockchain (default: 127.0.0.1)
+  --blockchain-port BLOCKCHAIN_PORT, -bp BLOCKCHAIN_PORT
+                        Port of blockchain (default: 8545)
 ```
 
 ### Executing the test client
@@ -146,13 +149,14 @@ Once you have the logger manager server up and running, you may want to test it 
 $ python test_client.py
 ```
 
-*Note that the client only sends grpc request once, and by design the server will always return a grpc error indicating the data is not yet ready for the first file submission or download. The task will be executed in background and server caches the result when the result is ready. Try execute the test_client multiple times and one should eventually get the result*
+*Note that the client only sends grpc request once, and by design the server will always return a grpc error indicating the data is not yet ready for the first file submission or download. The task will be executed in background and server caches the result when the it's ready. Try execute the test_client multiple times and one should eventually get the result*
 
 The test client also has a couple of options to customize it's behavior, you may check them with the -h or --help option:
 ```console
 $ python test_client.py -h
-Starting at Fri Apr  5 19:20:45 2019
+Starting at Wed Sep 25 19:09:10 2019
 usage: test_client.py [-h] [--address ADDRESS] [--port PORT] [--container]
+                      [--mode MODE]
 
 GRPC test client to the logger manager server
 
@@ -161,7 +165,9 @@ optional arguments:
   --address ADDRESS, -a ADDRESS
                         Logger manager server address
   --port PORT, -p PORT  Logger manager server port
-  --mode MODE, -m MODE  Mode of test client, can be submit/download (default: submit)
+  --container, -c       Fixes file references for when logger manager server
+                        is running from docker container
+  --mode MODE, -m MODE  Client mode can be submit or download
 ```
 
 ## Contributing
