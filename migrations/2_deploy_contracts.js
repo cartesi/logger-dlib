@@ -1,5 +1,6 @@
 require('dotenv').config();
 const fs = require('fs');
+const yaml = require('js-yaml');
 
 //Libraries
 
@@ -12,16 +13,9 @@ module.exports = function(deployer) {
   deployer.then(async () => {
 
     await deployer.deploy(Logger)
-
-    // Write address to file
     let addr_json = "{\"logger_address\":\"" + Logger.address + "\"}";
-
     fs.writeFile('../test/deployedAddresses.json', addr_json, (err) => {
-      if (err) console.log("couldnt write to file");
+        if (err) console.log("couldnt write to file");
     });
-
-    if (process.env.STEP_ADD_FILE_PATH) {
-        fs.writeFileSync(process.env.STEP_ADD_FILE_PATH, Step.address);
-    }
   });
 };
