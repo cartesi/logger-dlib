@@ -6,10 +6,10 @@
     "bignumber.js": "^6.0.0",
     "chai": "^4.2.0",
     "dotenv": "^8.0.0",
-    "ganache-cli": "6.2.5",
+    "ganache-cli": "6.4.4",
     "js-yaml": "^3.12.1",
     "node-fetch": "^2.3.0",
-    "truffle": "^5.0.12",
+    "truffle": "5.0.35",
     "web3": "^1.0.0-beta.36"
   },
   "devDependencies": {
