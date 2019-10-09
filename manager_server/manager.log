@@ -124,3 +124,38 @@ Issued to shut down
 2019-10-03 20:10:07,352 139694497072960 DEBUG __main__ 131 - serve: Logger registry global lock acquired
 2019-10-03 20:10:07,361 139694497072960 INFO __main__ 136 - serve: Waiting for server to stop
 2019-10-03 20:10:07,362 139694497072960 INFO __main__ 138 - serve: Server stopped
+2019-10-07 20:20:25,860 139944594310976 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-07 20:21:39,102 139944594310976 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-07 20:21:39,102 139944594310976 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-07 20:21:39,102 139944594310976 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-07 20:21:39,104 139944594310976 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-07 20:21:39,105 139944594310976 INFO __main__ 138 - serve: Server stopped
+2019-10-07 20:21:41,410 140627673483072 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-07 20:26:57,862 140627673483072 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-07 20:26:57,863 140627673483072 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-07 20:26:57,863 140627673483072 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-07 20:26:57,864 140627673483072 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-07 20:26:57,865 140627673483072 INFO __main__ 138 - serve: Server stopped
+2019-10-07 20:31:20,193 140291508733760 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-07 20:31:27,049 140291508733760 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-07 20:31:27,049 140291508733760 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-07 20:31:27,050 140291508733760 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-07 20:31:27,051 140291508733760 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-07 20:31:27,051 140291508733760 INFO __main__ 138 - serve: Server stopped
+2019-10-07 20:33:28,966 139981939541824 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-07 20:35:05,095 139981939541824 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-07 20:35:05,096 139981939541824 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-07 20:35:05,096 139981939541824 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-07 20:35:05,097 139981939541824 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-07 20:35:05,098 139981939541824 INFO __main__ 138 - serve: Server stopped
+2019-10-07 20:35:06,612 140206201898816 INFO __main__ 121 - serve: Server started, listening on address localhost and port 50051
+2019-10-07 20:35:10,003 140206201898816 INFO __main__ 126 - serve: 
+Issued to shut down
+2019-10-07 20:35:10,004 140206201898816 DEBUG __main__ 128 - serve: Acquiring logger registry global lock
+2019-10-07 20:35:10,004 140206201898816 DEBUG __main__ 131 - serve: Logger registry global lock acquired
+2019-10-07 20:35:10,004 140206201898816 INFO __main__ 136 - serve: Waiting for server to stop
+2019-10-07 20:35:10,005 140206201898816 INFO __main__ 138 - serve: Server stopped

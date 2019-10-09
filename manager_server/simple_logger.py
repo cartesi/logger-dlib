@@ -13,33 +13,56 @@ import sys
 sys.path.append('../logger/')
 import json
 from logger import Logger
+import yaml
+import argparse
 
-# start of main
+#Adding argument parser
+description = "A simple script to interact with Logger contract"
 
-if len(sys.argv) != 3:
-    print("Usage: python simple_logger.py submit <file_path>,")
-    print("Or: python simple_logger.py download <root hash>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(description=description)
+parser.add_argument(
+    '--action', '-a',
+    dest='action',
+    default="none",
+    help='Download mode download/submit (default: {})'.format("none")
+)
+parser.add_argument(
+    '--param', '-p',
+    dest='param',
+    default="",
+    help='The file path or root hash for Logger action'
+)
+parser.add_argument(
+    '--url', '-u',
+    dest='url',
+    default="127.0.0.1:8545",
+    help='Url of the blockchain (default: {})'.format("127.0.0.1:8545")
+)
 
-with open('../build/contracts/Logger.json') as json_file:
-    logger_data = json.load(json_file)
+#Getting arguments
+args = parser.parse_args()
 
-with open('../test/deployedAddresses.json') as json_file:
-    deployed_address = json.load(json_file)
+with open('../blockchain_files/Logger.json') as json_file:
+    logger_abi = json.load(json_file)['abi']
+
+with open('../blockchain_files/deployed_contracts.yaml') as deployed_file:
+    deployed_address = yaml.safe_load(deployed_file)["Logger"]
+
+blockchain_url = "http://{}".format(args.url)
 
 # TODO: Make endpoint and page_log2_size tree_log2_size configurable
-test_logger = Logger("http://127.0.0.1:8545", deployed_address["logger_address"], logger_data['abi'])
+test_logger = Logger(blockchain_url, deployed_address, logger_abi)
 # change this to automatic way
 test_logger.instantiate(2, 5)
 
-if (sys.argv[1] == "download"):
+if (args.action == "download"):
 
-    test_logger.download_file(bytes.fromhex(sys.argv[2]), sys.argv[2] + ".download")
+    test_logger.download_file(bytes.fromhex(args.param), args.param + ".download")
 
-elif (sys.argv[1] == "submit"):
+elif (args.action == "submit"):
 
-    root = test_logger.submit_file(sys.argv[2])
-    with open(sys.argv[2] + ".submit", "w") as f:
+    root = test_logger.submit_file(args.param)
+    with open(args.param + ".submit", "w") as f:
         f.write(root.hex())
 else:
-    assert False, "Unknown command"
+    assert False, "No action given"

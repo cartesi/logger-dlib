@@ -72,7 +72,7 @@ def run():
                 #Submit
                 print("\n\n\SUBMIT TESTS\n\n\n")
 
-                request = logger_high_pb2.FilePath(path="../submits_and_downloads/test_file")
+                request = logger_high_pb2.FilePath(path="../transferred_files/test_file")
                 print("Asking to submit a new file")
                 print("Server response:\n{}".format(stub_high.SubmitFile(request).content.hex()))
             elif mode == "download":

@@ -36,7 +36,7 @@ LOGGER = utils.configure_log(LOGGER)
 
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
-BLOCKCHAIN_ADDRESS = '127.0.0.1'
+BLOCKCHAIN_ADDRESS = 'localhost'
 BLOCKCHAIN_PORT = 8545
 SLEEP_TIME = 5
 
@@ -84,7 +84,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             LOGGER.info("Download file with root hash: {}".format(root))
 
             path = self.logger_registry_manager.download_file(root)
-            new_path = "../submits_and_downloads/" + path
+            new_path = "../transferred_files/" + path
 
             # move the file if is first time download
             if os.path.exists(path) and os.path.isfile(path):

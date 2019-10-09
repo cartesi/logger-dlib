@@ -36,6 +36,7 @@ class LoggerRegistryManager:
         self.global_lock = Lock()
         self.registry = {}
         self.shutting_down = False
+        self.blockchain_address = blockchain_address
 
     def submit_file(self, file_path):
         
@@ -88,7 +89,7 @@ class LoggerRegistryManager:
                         return (False, "")
             else:
                 self.registry[key] = LoggerStatus(result_path)
-                command = "python simple_logger.py {} {}&".format(action, key)
+                command = "python3 simple_logger.py -a {} -p {} -u {}&".format(action, key, self.blockchain_address)
                 LOGGER.info("Issuing: {}...".format(command))
                 os.system(command)
                 return (False, "")
