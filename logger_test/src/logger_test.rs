@@ -91,7 +91,7 @@ impl DApp<()> for LoggerTest {
 
         // if we reach this code, the instance is active, check the user
         let user = instance.concern.user_address.clone();
-        if user == ctx.user {
+        if user != ctx.user {
             return Err(Error::from(ErrorKind::InvalidContractState(
                 String::from("User is not an user of the test contract"),
             )));
@@ -110,10 +110,11 @@ impl DApp<()> for LoggerTest {
                 };
                 return Ok(Reaction::Transaction(request));
             },
-            "WaitingSubmitting" => {
+            "Submitting" => {
                 
-                let path = "../submits_and_downloads/test_file".to_string();
+                let path = "../transferred_files/test_file".to_string();
 
+                trace!("Submitting file: {}...", path);
                 let request = FilePath {
                     path: path.clone()
                 };
@@ -130,6 +131,7 @@ impl DApp<()> for LoggerTest {
                             LOGGER_METHOD_SUBMIT.to_string()))
                     })?
                     .into();
+                trace!("Submitted! Result: {:?}...", processed_response.hash);
                     
                 // claim Downloading in logger test contract
                 let request = TransactionRequest {
@@ -146,15 +148,16 @@ impl DApp<()> for LoggerTest {
                 };
                 return Ok(Reaction::Transaction(request));
             },
-            "WaitingDownloading" => {
+            "Downloading" => {
                 
                 let hash = ctx.submitted_hash.clone();
+                trace!("Download file for hash: {:?}...", hash);
 
                 let request = Hash {
                     hash: hash.clone()
                 };
 
-                let _processed_response: FilePath = archive.get_response(
+                let processed_response: FilePath = archive.get_response(
                     LOGGER_SERVICE_NAME.to_string(),
                     format!("{:x}", hash),
                     LOGGER_METHOD_DOWNLOAD.to_string(),
@@ -166,6 +169,7 @@ impl DApp<()> for LoggerTest {
                             LOGGER_METHOD_DOWNLOAD.to_string()))
                     })?
                     .into();
+                trace!("Downloaded! File stored at: {}...", processed_response.path);
                 
                 // TODO: compare the original file and downloaded file
                     
@@ -173,7 +177,7 @@ impl DApp<()> for LoggerTest {
                 let request = TransactionRequest {
                     concern: instance.concern.clone(),
                     value: U256::from(0),
-                    function: "Finished".into(),
+                    function: "claimFinished".into(),
                     data: vec![Token::Uint(instance.index)],
                     strategy: transaction::Strategy::Simplest,
                 };
