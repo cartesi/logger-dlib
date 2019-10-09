@@ -56,4 +56,4 @@ RUN \
     ./make_dispatcher_configs.sh
 
 CMD \
-    ./node_modules/.bin/ganache-cli --db=$GANACHE_DB_DIR -l 9007199254740991 -e 200000000 -i=7777 -d -h 0.0.0.0 --mnemonic="mixed bless goat recipe urban pair tuna diet drive capable normal action
+    python3 blockchain_helper.py --run

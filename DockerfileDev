@@ -51,11 +51,12 @@ RUN \
 # Loading cargo bin in path
 ENV PATH="/root/.cargo/bin:$PATH"
 
-COPY ./dispatcher/ $BASE/dispatcher
-COPY ./logger_test/ $BASE/logger_test
 COPY ./lib/ $BASE/lib
 RUN \
     rm -rf $BASE/protobuf
+RUN mkdir -p $BASE/transferred_files
+COPY ./dispatcher/ $BASE/dispatcher
+COPY ./logger_test/ $BASE/logger_test
 
 # Compile logger test
 WORKDIR $BASE/logger_test

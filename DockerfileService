@@ -1,0 +1,13 @@
+FROM cartesi/image-logger-test:latest
+
+MAINTAINER Stephen Chen <stephen@cartesi.io>
+
+ENV BASE /opt/cartesi
+
+RUN mkdir -p $BASE/transferred_files
+
+COPY ./manager_server/ $BASE/manager_server
+COPY ./logger/ $BASE/logger
+COPY ./lib/ $BASE/lib
+
+WORKDIR $BASE/manager_server
