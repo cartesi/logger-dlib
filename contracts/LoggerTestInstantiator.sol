@@ -114,7 +114,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
     {
         require(instance[_index].currentState == state.Submitting, "The state should be Submitting");
 
-        instance[_index].currentState = state.Submitting;
+        instance[_index].currentState = state.Downloading;
         instance[_index].submittedHash = _submittedHash;
         return;
     }
@@ -145,6 +145,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
 
     function getState(uint256 _index, address) public view returns
         ( address _user,
+        bytes32 _hash,
         bytes32 _currentState
         )
     {
@@ -168,6 +169,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
 
         return (
             i.user,
+            i.submittedHash,
             currentState
         );
     }
