@@ -101,6 +101,7 @@ def run():
         "--db", GANACHE_DB_DIR, "-l", GANACHE_GAS_LIMIT,
         "-e", GANACHE_DEFAULT_BALANCE, "-i", GANACHE_NETWORKS,
         "-d", "--mnemonic", GANACHE_MNEMONIC,
+        "-h", "0.0.0.0",
         "-a", NUMBER_OF_ACCOUTS])
 
 def deploy():
