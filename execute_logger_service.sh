@@ -1,1 +1,1 @@
-docker run --name logger-service --net cartesi-network --ip 172.18.0.23 -p 0.0.0.0:50051:50051 -v `pwd`/transferred_files:/opt/cartesi/transferred_files -it --rm cartesi/image-logger-service bash -c "python3 manager_server.py -a 0.0.0.0 -ba 172.18.0.22"
+docker run --name logger-service --net cartesi-network --ip 172.19.0.23 -p 0.0.0.0:50051:50051 -v `pwd`/transferred_files:/opt/cartesi/transferred_files -it --rm cartesi/image-logger-service bash -c "python3 manager_server.py -a 0.0.0.0 -ba 172.19.0.22"

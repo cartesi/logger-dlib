@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1.0.0-experimental
-FROM cartesi/image-blockchain-base:latest
+FROM cartesi/image-logger-blockchain-base:latest as blockchain-base
+
+FROM ubuntu:18.04
 
 MAINTAINER Stephen Chen <stephen@cartesi.io>
 
@@ -13,8 +15,8 @@ RUN \
     apt-get update && \
     apt-get install --no-install-recommends -y \
         openssh-client \
-        unzip autoconf automake libtool \
-        g++ gcc libssl-dev pkg-config cmake && \
+        unzip build-essential autoconf automake libtool git \
+        make curl g++ gcc libssl-dev pkg-config ca-certificates cmake && \
     mkdir -p $BASE
 
 RUN mkdir -m 700 /root/.ssh
@@ -57,6 +59,8 @@ RUN \
 RUN mkdir -p $BASE/transferred_files
 COPY ./dispatcher/ $BASE/dispatcher
 COPY ./logger_test/ $BASE/logger_test
+COPY --from=blockchain-base $BASE/*.yaml $BASE
+COPY --from=blockchain-base $BASE/blockchain_files $BASE/blockchain_files
 
 # Compile logger test
 WORKDIR $BASE/logger_test
