@@ -1,0 +1,35 @@
+FROM python:3.7.5-alpine3.9
+
+# install dockerize, as we need to wait on the contract
+# address to be extracted
+# ----------------------------------------------------
+RUN apk add --no-cache openssl musl-dev python3-dev gcc g++ libc-dev
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+ENV BASE=/opt/cartesi/
+
+# Installing python dependencies
+# ----------------------------------------------------
+COPY ./requirements.txt $BASE/
+
+WORKDIR $BASE
+
+RUN pip3 install -r requirements.txt
+
+COPY ./manager_server/ $BASE/manager_server
+COPY ./logger/ $BASE/logger
+COPY ./lib/ $BASE/lib
+COPY ./transferred_files $BASE/transferred_files
+
+EXPOSE 50051
+
+WORKDIR $BASE/lib/grpc-interfaces
+
+RUN ls && ./generate_python_grpc_code.sh
+
+WORKDIR $BASE/manager_server
+
+CMD dockerize -wait file:///opt/cartesi/blockchain/address_done -timeout 120s python3 manager_server.py -a 0.0.0.0 -ba ganache

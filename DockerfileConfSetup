@@ -1,0 +1,14 @@
+FROM alpine
+
+# install dockerize, as we need to wait on truffle to finish deploying the contracts
+RUN apk add --no-cache openssl jq
+ENV DOCKERIZE_VERSION v0.6.1
+RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+
+COPY extract_logger_address.sh /
+
+WORKDIR /
+
+CMD dockerize -wait file:///truffle_data/contract_deploy_done -timeout 120s ./extract_logger_address.sh truffle_data/contracts/Logger.json truffle_data/contracts/logger.address && touch truffle_data/address_done

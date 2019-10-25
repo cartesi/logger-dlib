@@ -1,6 +1,6 @@
 [submodule "lib/grpc-interfaces"]
 	path = lib/grpc-interfaces
-	url = ../lib/grpc-interfaces
+	url = ../grpc-interfaces
 [submodule "dispatcher"]
 	path = dispatcher
 	url = ../dispatcher

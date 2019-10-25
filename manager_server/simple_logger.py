@@ -42,11 +42,11 @@ parser.add_argument(
 #Getting arguments
 args = parser.parse_args()
 
-with open('../blockchain_files/Logger.json') as json_file:
+with open('../blockchain/contracts/Logger.json') as json_file:
     logger_abi = json.load(json_file)['abi']
 
-with open('../blockchain_files/deployed_contracts.yaml') as deployed_file:
-    deployed_address = yaml.safe_load(deployed_file)["Logger"]
+with open('../blockchain/contracts/logger.address') as deployed_file:
+    deployed_address = deployed_file.readlines()[0].strip().strip('"')
 
 blockchain_url = "http://{}".format(args.url)
 
