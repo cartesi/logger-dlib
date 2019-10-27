@@ -1,0 +1,31 @@
+name: Docker
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          submodules: recursive
+          token: ${{ secrets.CI_TOKEN }}
+
+      - name: Docker Login
+        run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Logger Deployer
+        run: |
+          docker build . -t cartesi/logger-blockchain-deployer -f DockerfileDeployContracts
+          docker push cartesi/logger-blockchain-deployer
+
+      - name: Build Logger Configurer
+        run: |
+          docker build . -t cartesi/logger-configurer -f DockerfileConfSetup
+          docker push cartesi/logger-configurer
+
+      - name: Build Logger Server
+        run: |
+          docker build . -t cartesi/logger-server -f DockerfileServer
+          docker push cartesi/logger-server

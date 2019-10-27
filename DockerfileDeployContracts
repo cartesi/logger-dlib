@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:12.13.0-alpine
 
 # install dockerize, as we need to wait on ganache to be responding
 RUN apk add --no-cache openssl
@@ -10,6 +10,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 # install truffle globally
 # following best practive for global dependencies
 # https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md#global-npm-dependencies
+USER node
 ENV NPM_CONFIG_PREFIX=/home/node/.npm-global
 ENV PATH=$PATH:/home/node/.npm-global/bin
 RUN npm install truffle@5.0.35 -g
@@ -23,4 +24,5 @@ COPY truffle.js $BASE/
 COPY ./contracts/ $BASE/contracts
 COPY ./migrations/ $BASE/migrations
 
+USER root
 CMD dockerize -wait tcp://ganache:8545 truffle migrate && touch $BASE/build/contract_deploy_done
