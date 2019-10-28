@@ -12,6 +12,7 @@
 pragma solidity ^0.5.0;
 
 import "./Decorated.sol";
+import "./LoggerInterface.sol";
 import "./Merkle.sol";
 
 
@@ -19,7 +20,7 @@ import "./Merkle.sol";
 /// @author Stephen Chen
 /// @notice A contract that offers data availability
 /// @dev This contract is not well-tested yet.
-contract Logger is Decorated {
+contract Logger is Decorated, LoggerInterface {
   // the caller can either provide the full data to generate the Merkle tree root
   // or combine the existing hashes in the history to a deeper tree
 
@@ -29,6 +30,7 @@ contract Logger is Decorated {
         bytes32 root;
     }
 
+    mapping(bytes32 => bool) logSubmitted;
     DataEntry[] dataHistory;
 
     uint256 public currentIndex = 0;
@@ -74,6 +76,7 @@ contract Logger is Decorated {
             root,
             _log2Size);
         ++currentIndex;
+        logSubmitted[root] = true;
         return root;
     }
 
@@ -103,6 +106,13 @@ contract Logger is Decorated {
             root,
             log2Size + _log2Size);
         ++currentIndex;
+        logSubmitted[root] = true;
         return root;
+    }
+
+    /// @notice Getter function to check if log has been submitted for the given hash
+    // @param _indices The array of indices of the history
+    function isLogAvailable(bytes32 _root) public view returns(bool) {
+        return logSubmitted[_root];
     }
 }
