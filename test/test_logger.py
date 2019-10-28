@@ -24,7 +24,11 @@ with open('./deployedAddresses.json') as json_file:
     deployed_address = json.load(json_file)
 
 # TODO: Make endpoint and page_log2_size tree_log2_size configurable
-test_logger = Logger("http://127.0.0.1:8545", deployed_address["logger_address"], logger_data['abi'])
+test_logger = Logger("http://127.0.0.1:8545",
+    deployed_address["logger_address"],
+    logger_data['abi'],
+    "0x6D1d1b8884FF147f7C0398E8fa6cfc03ad2257E2",
+    bytes.fromhex("36ab16f5a7809d154b416f14e750e3efdd5c9fc3b4585bff7d8b25c213645f6c"))
 test_logger.instantiate(2, 5)
 
 # test case 1

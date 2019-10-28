@@ -6,5 +6,5 @@
 cd ../
 rm ./build/ -rf
 cd ./test/
-sudo truffle compile
-sudo truffle migrate --reset
+truffle compile
+truffle migrate --reset

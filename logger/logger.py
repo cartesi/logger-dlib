@@ -14,8 +14,10 @@ from web3 import Web3
 
 class Logger:
 
-    def __init__(self, endpoint, logger_address, logger_abi):
+    def __init__(self, endpoint, logger_address, logger_abi, user, key):
         self.__w3 = Web3(Web3.HTTPProvider(endpoint, request_kwargs={'timeout': 60}))
+        self.__key = key
+        self.__user = user
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
         self.__bytes_of_word = 8
         self.__debug = False
@@ -70,7 +72,10 @@ class Logger:
     def submit_indices_to_logger(self, indices):
 
         try:
-            tx_hash = self.__logger.functions.calculateMerkleRootFromHistory(self.__page_log_2_size, indices).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
+            nonce = self.__w3.eth.getTransactionCount(self.__user)
+            txn = self.__logger.functions.calculateMerkleRootFromHistory(self.__page_log_2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
+            signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
+            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
@@ -93,7 +98,10 @@ class Logger:
     def submit_data_to_logger(self, data):
 
         try:
-            tx_hash = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).transact({'from': self.__w3.eth.coinbase, 'gas': 6283185})
+            nonce = self.__w3.eth.getTransactionCount(self.__user)
+            txn = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).buildTransaction({"nonce": nonce, "from": self.__user})
+            signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
+            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
                 raise ValueError(receipt['transactionHash'].hex())
