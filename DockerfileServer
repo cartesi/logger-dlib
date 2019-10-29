@@ -28,7 +28,7 @@ EXPOSE 50051
 
 WORKDIR $BASE/lib/grpc-interfaces
 
-RUN ls && ./generate_python_grpc_code.sh
+RUN ./generate_python_grpc_code.sh
 
 WORKDIR $BASE/manager_server
 
