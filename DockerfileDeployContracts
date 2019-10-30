@@ -20,7 +20,7 @@ ENV BASE /usr/src/app
 # must create base dir before switching to user node, so its owned by root
 WORKDIR $BASE
 
-COPY truffle.js $BASE/
+COPY truffle-config.js $BASE/
 COPY ./contracts/ $BASE/contracts
 COPY ./migrations/ $BASE/migrations
 
