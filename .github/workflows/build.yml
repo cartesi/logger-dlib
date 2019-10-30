@@ -17,15 +17,15 @@ jobs:
 
       - name: Build Logger Deployer
         run: |
-          docker build . -t cartesi/logger-blockchain-deployer -f DockerfileDeployContracts
+          docker build . -t cartesi/logger-blockchain-deployer -f deployer/Dockerfile
           docker push cartesi/logger-blockchain-deployer
 
       - name: Build Logger Configurer
         run: |
-          docker build . -t cartesi/logger-configurer -f DockerfileConfSetup
+          docker build setup -t cartesi/logger-configurer
           docker push cartesi/logger-configurer
 
       - name: Build Logger Server
         run: |
-          docker build . -t cartesi/logger-server -f DockerfileServer
+          docker build . -t cartesi/logger-server
           docker push cartesi/logger-server
