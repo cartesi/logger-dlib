@@ -14,7 +14,7 @@ services:
     depends_on: [ganache]
     build:
       context: .
-      dockerfile: ./DockerfileDeployContracts
+      dockerfile: ./deployer/Dockerfile
     volumes:
       - truffle_data:/usr/src/app/build
     networks:
