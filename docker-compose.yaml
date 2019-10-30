@@ -2,7 +2,7 @@ version: '3'
 services:
   ganache:
     image: trufflesuite/ganache-cli
-    command: ["ganache-cli", "--accounts", "4", "--account_keys_path", "/ganache-data/keys"]
+    command: ["ganache-cli", "--accounts", "1", "--account_keys_path", "/ganache-data/keys"]
     volumes:
       - ganache_data:/ganache-data
     expose:
@@ -20,20 +20,26 @@ services:
     networks:
       - ganache
 
-  conf_setup:
-     depends_on: [deployer]
-     build:
-       context: .
-       dockerfile: ./DockerfileConfSetup
-     volumes:
-       - truffle_data:/truffle_data
+  key_distributor:
+    depends_on: [deployer]
+    image: cartesi/key-distributor
+    volumes:
+      - ganache_data:/keys
+      - logger_data:/key-0
+
+  logger_setup:
+    depends_on: [key_distributor]
+    build: ./setup
+    volumes:
+      - truffle_data:/opt/cartesi/blockchain
+      - logger_data:/opt/cartesi/logger/config
 
   logger:
-    depends_on: [conf_setup]
+    depends_on: [logger_setup]
     build: .
     volumes:
       - truffle_data:/opt/cartesi/blockchain
-      - logger_data:/opt/cartesi/logger/data
+      - logger_data:/opt/cartesi/logger/config
     networks:
       - ganache
 

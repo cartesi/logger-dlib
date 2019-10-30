@@ -45,7 +45,7 @@ args = parser.parse_args()
 with open('../blockchain/contracts/Logger.json') as json_file:
     logger_abi = json.load(json_file)['abi']
 
-with open('../blockchain/contracts/logger.address') as deployed_file:
+with open('../logger/config/address') as deployed_file:
     deployed_address = deployed_file.readlines()[0].strip().strip('"')
 
 blockchain_url = "http://{}".format(args.url)

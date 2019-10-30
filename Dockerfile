@@ -9,7 +9,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-ENV BASE=/opt/cartesi/
+ENV BASE /opt/cartesi
 
 # Installing python dependencies
 # ----------------------------------------------------
@@ -17,12 +17,13 @@ COPY ./requirements.txt $BASE/
 
 WORKDIR $BASE
 
-RUN pip3 install -r requirements.txt
+RUN GRPC_PYTHON_BUILD_EXT_COMPILER_JOBS=$(nproc) pip3 install -r requirements.txt
 
 COPY ./manager_server/ $BASE/manager_server
 COPY ./logger/ $BASE/logger
 COPY ./lib/ $BASE/lib
 COPY ./transferred_files $BASE/transferred_files
+COPY ./logger-entrypoint.sh $BASE/
 
 EXPOSE 50051
 
@@ -30,6 +31,8 @@ WORKDIR $BASE/lib/grpc-interfaces
 
 RUN ./generate_python_grpc_code.sh
 
-WORKDIR $BASE/manager_server
+WORKDIR $BASE
 
-CMD dockerize -wait file:///opt/cartesi/blockchain/address_done -timeout 120s python3 manager_server.py -a 0.0.0.0 -ba ganache
+CMD dockerize \
+    -wait file://$BASE/logger/config/address_done -timeout 120s \
+    ./logger-entrypoint.sh
