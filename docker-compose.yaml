@@ -30,9 +30,7 @@ services:
 
   logger:
     depends_on: [conf_setup]
-    build:
-      context: .
-      dockerfile: ./DockerfileServer
+    build: .
     volumes:
       - truffle_data:/opt/cartesi/blockchain
       - logger_data:/opt/cartesi/logger/data
