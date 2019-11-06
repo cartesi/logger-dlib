@@ -26,7 +26,7 @@
 /// @title Interface for logger test instantiator
 pragma solidity ^0.5.0;
 
-import "./Instantiator.sol";
+import "@cartesi/util/contracts/Instantiator.sol";
 
 
 contract LoggerTestInterface is Instantiator {
