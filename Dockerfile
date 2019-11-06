@@ -35,4 +35,5 @@ WORKDIR $BASE
 
 CMD dockerize \
     -wait file://$BASE/logger/config/address_done -timeout 120s \
+    -wait file://$BASE/keys/keys_done -timeout 120s \
     ./logger-entrypoint.sh

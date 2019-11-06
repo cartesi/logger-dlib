@@ -25,21 +25,22 @@ services:
     image: cartesi/key-distributor
     volumes:
       - ganache_data:/keys
-      - logger_data:/key-0
+      - key_data:/key-0
 
   logger_setup:
-    depends_on: [key_distributor]
+    depends_on: [deployer]
     build: ./setup
     volumes:
       - truffle_data:/opt/cartesi/blockchain
       - logger_data:/opt/cartesi/logger/config
 
   logger:
-    depends_on: [logger_setup]
+    depends_on: [key_distributor, logger_setup]
     build: .
     volumes:
       - truffle_data:/opt/cartesi/blockchain
       - logger_data:/opt/cartesi/logger/config
+      - key_data:/opt/cartesi/keys
     networks:
       - ganache
 
@@ -47,6 +48,7 @@ volumes:
   ganache_data:
   truffle_data:
   logger_data:
+  key_data:
 
 networks:
   ganache:
