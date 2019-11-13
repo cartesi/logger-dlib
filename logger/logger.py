@@ -144,11 +144,12 @@ class Logger:
         data = []
         for x in range(self.__page_size):
             data.append(bytes(self.__bytes_of_word))
-
-        while(count > 0):
+        
+        if(count > 0):
             (index, root) = self.submit_data_to_logger(data)
-            indices.append(index)
-            count -= 1
+            while(count > 0):
+                indices.append(index)
+                count -= 1
 
         if(len(indices) > 1):
             (index, root) = self.submit_indices_to_logger(indices)
@@ -158,6 +159,12 @@ class Logger:
     def download_file(self, root, filename):
         
         (succ, data) = self.__recover_data_from_root(root)
+
+        bytes_count = 0
+        for b in data:
+            bytes_count += len(b)
+        
+        data.append(bytes(2**(self.__tree_log_2_size + 3) - bytes_count))
 
         if(succ):
             if(self.__debug):
