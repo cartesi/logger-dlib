@@ -7,4 +7,4 @@ cd ../
 rm ./build/ -rf
 cd ./test/
 truffle compile
-truffle migrate --reset
+truffle migrate --network unittests --reset
