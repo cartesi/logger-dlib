@@ -22,8 +22,8 @@ jobs:
 
       - name: Build Logger Configurer
         run: |
-          docker build setup -t cartesi/logger-configurer
-          docker push cartesi/logger-configurer
+          docker build setup -t cartesi/logger-configurer:next
+          docker push cartesi/logger-configurer:next
 
       - name: Build Logger Server
         run: |
