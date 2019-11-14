@@ -3,3 +3,12 @@ node_modules
 .git
 .venv
 .vscode
+
+CODE_OF_CONDUCT.md
+README.md
+docker-compose.yaml
+deployer
+dispatcher
+logger_test
+setup
+test
