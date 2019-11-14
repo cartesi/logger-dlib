@@ -70,11 +70,11 @@ class Logger:
             print("Couldn't connect to node, exiting")
             sys.exit(1)
                             
-    def submit_indices_to_logger(self, indices):
+    def submit_indices_to_logger(self, log2_size, indices):
 
         try:
             nonce = self.__w3.eth.getTransactionCount(self.__user)
-            txn = self.__logger.functions.calculateMerkleRootFromHistory(self.__page_log_2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
+            txn = self.__logger.functions.calculateMerkleRootFromHistory(log2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
             signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
             tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
@@ -151,8 +151,18 @@ class Logger:
                 indices.append(index)
                 count -= 1
 
-        if(len(indices) > 1):
-            (index, root) = self.submit_indices_to_logger(indices)
+        index_log2_size = self.__page_log_2_size
+        while(len(indices) > 1):
+            indices_len = len(indices)
+            new_indices = []
+            for x in range(int(indices_len/2)):
+                partial_indices = []
+                partial_indices.append(indices.pop(0))
+                partial_indices.append(indices.pop(0))
+                (index, root) = self.submit_indices_to_logger(index_log2_size, partial_indices)
+                new_indices.append(index)
+            indices = new_indices
+            index_log2_size += 1
         
         return root
             
