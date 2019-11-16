@@ -61,7 +61,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             file_path = request.path
             LOGGER.info("Submit file with path: {}".format(file_path))
             
-            root = self.logger_registry_manager.submit_file(file_path)
+            root = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
             response = cartesi_base_pb2.Hash(content=bytes.fromhex(root))
             return response
 
@@ -80,11 +80,11 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             if self.ServerShuttingDown(context):
                 return
 
-            root = request.content.hex()
+            root = request.root.content.hex()
             LOGGER.info("Download file with root hash: {}".format(root))
 
-            path = self.logger_registry_manager.download_file(root)
-            new_path = "../transferred_files/" + path
+            path = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
+            new_path = request.path
 
             # move the file if is first time download
             if os.path.exists(path) and os.path.isfile(path):

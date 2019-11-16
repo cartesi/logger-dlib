@@ -38,14 +38,14 @@ class LoggerRegistryManager:
         self.shutting_down = False
         self.blockchain_address = blockchain_address
 
-    def submit_file(self, file_path):
+    def submit_file(self, file_path, page_log2_size, tree_log2_size):
         
         if not os.path.exists(file_path) or not os.path.isfile(file_path):
             err_msg = "The submit file path: {} is not valid".format(file_path)
             LOGGER.error(err_msg)
             raise FilePathException(err_msg)
 
-        (is_ready, result_path) = self.register_action("submit", file_path)
+        (is_ready, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
             err_msg = "Result is not yet ready for submit file: {}".format(file_path)
@@ -55,9 +55,9 @@ class LoggerRegistryManager:
             with open(result_path, "r") as f:
                 return f.readline()
 
-    def download_file(self, root):
+    def download_file(self, root, page_log2_size, tree_log2_size):
 
-        (is_ready, result_path) = self.register_action("download", root)
+        (is_ready, result_path) = self.register_action("download", root, page_log2_size, tree_log2_size)
 
         if not is_ready:
             err_msg = "Result is not yet ready for download file: {}".format(root)
@@ -70,7 +70,7 @@ class LoggerRegistryManager:
     Here starts the "internal" API, use the methods bellow taking the right precautions such as holding a lock
     """
 
-    def register_action(self, action, key):
+    def register_action(self, action, key, page_log2_size, tree_log2_size):
 
         result_path = "{}.{}".format(key, action)
         #Acquiring global lock and releasing it when completed
@@ -89,7 +89,7 @@ class LoggerRegistryManager:
                         return (False, "")
             else:
                 self.registry[key] = LoggerStatus(result_path)
-                command = "python3 simple_logger.py -a {} -p {} -u {}&".format(action, key, self.blockchain_address)
+                command = "python3 simple_logger.py -a {} -p {} -u {} -b {} -t {}&".format(action, key, self.blockchain_address, page_log2_size, tree_log2_size)
                 LOGGER.info("Issuing: {}...".format(command))
                 os.system(command)
                 return (False, "")

@@ -33,6 +33,20 @@ parser.add_argument(
     help='The file path or root hash for Logger action'
 )
 parser.add_argument(
+    '--blob_log2_size', '-b',
+    dest='blob_log2_size',
+    type=int,
+    required=True,
+    help='The blob log2 size of the Logger'
+)
+parser.add_argument(
+    '--tree_log2_size', '-t',
+    dest='tree_log2_size',
+    type=int,
+    required=True,
+    help='The tree log2 size of the Logger'
+)
+parser.add_argument(
     '--url', '-u',
     dest='url',
     default="127.0.0.1:8545",
@@ -48,12 +62,18 @@ with open('../blockchain/contracts/Logger.json') as json_file:
 with open('../logger/config/address') as deployed_file:
     deployed_address = deployed_file.readlines()[0].strip().strip('"')
 
+### for local testing ###
+# with open('../build/contracts/Logger.json') as json_file:
+#      logger_abi = json.load(json_file)['abi']
+ 
+# with open('../test/deployedAddresses.json') as json_file:
+#     deployed_address = json.load(json_file)["logger_address"]
+
 blockchain_url = "http://{}".format(args.url)
 
-# TODO: Make endpoint and page_log2_size tree_log2_size configurable
 test_logger = Logger(blockchain_url, deployed_address, logger_abi)
 # change this to automatic way
-test_logger.instantiate(2, 5)
+test_logger.instantiate(args.blob_log2_size, args.tree_log2_size)
 
 if (args.action == "download"):
 
