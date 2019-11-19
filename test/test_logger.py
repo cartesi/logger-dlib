@@ -10,10 +10,11 @@
 # specific language governing permissions and limitations under the License.
 
 import sys
-from web3.auto import w3
-sys.path.append('../logger/')
 import json
 import filecmp
+from web3.auto import w3
+
+sys.path.append('../logger/')
 from logger import Logger
 
 # start of main test

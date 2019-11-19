@@ -11,40 +11,32 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 """
 
-import subprocess
 import logging
 import logging.config
 import logging.handlers
-import traceback
-import grpc
-import json
 
-import core_pb2_grpc
-import cartesi_base_pb2
-import manager_high_pb2
+LOG_FILENAME = "server.log"
 
-LOG_FILENAME = "manager.log"
-UNIX = "unix"
-TCP = "tcp"
-SOCKET_TYPE = UNIX
 
 def get_new_logger(name):
     return logging.getLogger(name)
+
 
 def configure_log(logger):
 
     logger.setLevel(logging.DEBUG)
 
-    #Setting format
-    formatter = logging.Formatter('%(asctime)s %(thread)d %(levelname)-s %(name)s %(lineno)s - %(funcName)s: %(message)s')
+    # Setting format
+    formatter = logging.Formatter(
+        '%(asctime)s %(thread)d %(levelname)-s %(name)s %(lineno)s - %(funcName)s: %(message)s')
 
-    #File rotation log handler
+    # File rotation log handler
     rotating_file_handler = logging.handlers.RotatingFileHandler(
-              LOG_FILENAME, maxBytes=2**20, backupCount=5)
+        LOG_FILENAME, maxBytes=2**20, backupCount=5)
     rotating_file_handler.setFormatter(formatter)
     rotating_file_handler.setLevel(logging.DEBUG)
 
-    #Stream log handler
+    # Stream log handler
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     stream_handler.setFormatter(formatter)
@@ -54,6 +46,7 @@ def configure_log(logger):
 
     return logger
 
-#Initializing log
+
+# Initializing log
 LOGGER = get_new_logger(__name__)
 LOGGER = configure_log(LOGGER)

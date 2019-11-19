@@ -14,25 +14,19 @@ specific language governing permissions and limitations under the License.
 from __future__ import print_function
 
 import grpc
-import sys
-import os
 import time
 import datetime
-import json
-import traceback
 import argparse
 
-import core_pb2
 import cartesi_base_pb2
-import core_pb2_grpc
 import logger_high_pb2
 import logger_high_pb2_grpc
-#from IPython import embed
 
 SLEEP_TIME = 5
 DEFAULT_ADDRESS = 'localhost'
 DEFAULT_PORT = 50051
 DEFAULT_MODE = 'submit'
+
 
 def port_number(port):
     try:
@@ -42,6 +36,7 @@ def port_number(port):
     except:
         raise argparse.ArgumentTypeError("Please provide a valid port from 0 to 65535")
     return port
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='GRPC test client to the logger manager server')
@@ -56,8 +51,8 @@ def get_args():
 
     return (args.address, args.port, args.mode)
 
+
 def run():
-    responses = []
     srv_add, srv_port, mode = get_args()
     conn_str = "{}:{}".format(srv_add, srv_port)
     print("Connecting to server in " + conn_str)
@@ -65,14 +60,14 @@ def run():
         stub_high = logger_high_pb2_grpc.LoggerManagerHighStub(channel)
         try:
             if mode == "submit":
-                #Submit
+                # Submit
                 print("\n\nSUBMIT TESTS\n\n")
 
                 request = logger_high_pb2.SubmitFileRequest(path="../test/test_file", page_log2_size=5, tree_log2_size=5)
                 print("Asking to submit a new file")
                 print("Server response:\n{}".format(stub_high.SubmitFile(request).content.hex()))
             elif mode == "download":
-                #Download
+                # Download
                 print("\n\nDOWNLOAD TESTS\n\n")
 
                 root = cartesi_base_pb2.Hash(content=bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"))
@@ -86,6 +81,7 @@ def run():
             print("An exception occurred:")
             print(e)
             print(type(e))
+
 
 if __name__ == '__main__':
     start = time.time()

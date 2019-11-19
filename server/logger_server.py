@@ -13,9 +13,7 @@ specific language governing permissions and limitations under the License.
 
 from concurrent import futures
 import time
-import math
 import grpc
-import sys
 import traceback
 import argparse
 import shutil
@@ -33,6 +31,7 @@ LOGGER = utils.configure_log(LOGGER)
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
 SLEEP_TIME = 5
+
 
 class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
 
@@ -63,7 +62,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             LOGGER.error(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-        #Generic error catch
+        # Generic error catch
         except Exception as e:
             LOGGER.error("An exception occurred: {}\nTraceback: {}".format(e, traceback.format_exc()))
             context.set_details('An exception with message "{}" was raised!'.format(e))
@@ -91,11 +90,12 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             LOGGER.error(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-        #Generic error catch
+        # Generic error catch
         except Exception as e:
             LOGGER.error("An exception occurred: {}\nTraceback: {}".format(e, traceback.format_exc()))
             context.set_details('An exception with message "{}" was raised!'.format(e))
             context.set_code(grpc.StatusCode.UNKNOWN)
+
 
 def serve(args):
     listening_add = args.address
@@ -104,8 +104,7 @@ def serve(args):
     manager_address = '{}:{}'.format(listening_add, listening_port)
     logger_registry_manager = LoggerRegistryManager()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager),
-                                                      server)
+    logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager), server)
 
     server.add_insecure_port(manager_address)
     server.start()
@@ -117,7 +116,7 @@ def serve(args):
         LOGGER.info("\nIssued to shut down")
 
         LOGGER.debug("Acquiring logger registry global lock")
-        #Acquiring lock to write on logger registry
+        # Acquiring lock to write on logger registry
         with logger_registry_manager.global_lock:
             LOGGER.debug("Logger registry global lock acquired")
             logger_registry_manager.shutting_down = True
@@ -128,9 +127,10 @@ def serve(args):
         shutdown_event.wait()
         LOGGER.info("Server stopped")
 
+
 if __name__ == '__main__':
 
-    #Adding argument parser
+    # Adding argument parser
     description = "Instantiates a logger manager server, responsible for managing and interacting with logger contract"
 
     parser = argparse.ArgumentParser(description=description)
@@ -139,14 +139,14 @@ if __name__ == '__main__':
         dest='address',
         default=LISTENING_ADDRESS,
         help='Address to listen (default: {})'.format(LISTENING_ADDRESS)
-    )
+        )
     parser.add_argument(
         '--port', '-p',
         dest='port',
         default=LISTENING_PORT,
         help='Port to listen (default: {})'.format(LISTENING_PORT)
-    )
-    #Getting arguments
+        )
+    # Getting arguments
     args = parser.parse_args()
 
     serve(args)

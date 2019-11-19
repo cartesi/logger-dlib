@@ -9,15 +9,13 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-import sys
 from web3.auto import w3
 import json
-import yaml
 import argparse
 
 from logger import Logger
 
-#Adding argument parser
+# Adding argument parser
 description = "A simple script to interact with Logger contract"
 
 parser = argparse.ArgumentParser(description=description)
@@ -26,34 +24,34 @@ parser.add_argument(
     dest='action',
     default="none",
     help='Download mode download/submit (default: {})'.format("none")
-)
+    )
 parser.add_argument(
     '--param', '-p',
     dest='param',
     default="",
     help='The file path or root hash for Logger action'
-)
+    )
 parser.add_argument(
     '--blob_log2_size', '-b',
     dest='blob_log2_size',
     type=int,
     required=True,
     help='The blob log2 size of the Logger'
-)
+    )
 parser.add_argument(
     '--tree_log2_size', '-t',
     dest='tree_log2_size',
     type=int,
     required=True,
     help='The tree log2 size of the Logger'
-)
+    )
 
-#Getting arguments
+# Getting arguments
 args = parser.parse_args()
 
 fname = '../blockchain/contracts/Logger.json'
-### XXX: for local testing uncomment below. we should make this a configuration (arg) ###
-#fname = '../build/contracts/Logger.json'
+# ## XXX: for local testing uncomment below. we should make this a configuration (arg) ###
+# fname = '../build/contracts/Logger.json'
 with open(fname) as json_file:
     logger_data = json.load(json_file)
     logger_abi = logger_data['abi']

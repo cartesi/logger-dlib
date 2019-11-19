@@ -11,9 +11,8 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 """
 
-from threading import Lock, Event
+from threading import Lock
 import utils
-import time
 import os
 
 WAIT_SERVER_TIME = 2
@@ -21,14 +20,18 @@ WAIT_SERVER_TIME = 2
 LOGGER = utils.get_new_logger(__name__)
 LOGGER = utils.configure_log(LOGGER)
 
+
 class HashException(Exception):
     pass
+
 
 class FilePathException(Exception):
     pass
 
+
 class NotReadyException(Exception):
     pass
+
 
 class LoggerRegistryManager:
 
@@ -38,7 +41,7 @@ class LoggerRegistryManager:
         self.shutting_down = False
 
     def submit_file(self, file_path, page_log2_size, tree_log2_size):
-        
+
         if not os.path.exists(file_path) or not os.path.isfile(file_path):
             err_msg = "The submit file path: {} is not valid".format(file_path)
             LOGGER.error(err_msg)
@@ -72,12 +75,12 @@ class LoggerRegistryManager:
     def register_action(self, action, key, page_log2_size, tree_log2_size):
 
         result_path = "{}.{}".format(key, action)
-        #Acquiring global lock and releasing it when completed
+        # Acquiring global lock and releasing it when completed
         LOGGER.debug("Acquiring registry {} global lock".format(action))
         with self.global_lock:
             LOGGER.debug("Lock acquired")
             if key in self.registry.keys():
-                #already contains the key
+                # already contains the key
                 if self.registry[key].is_ready:
                     return (True, self.registry[key].result_path)
                 else:
@@ -92,6 +95,7 @@ class LoggerRegistryManager:
                 LOGGER.info("Issuing: {}...".format(command))
                 os.system(command)
                 return (False, "")
+
 
 class LoggerStatus:
 

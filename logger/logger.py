@@ -12,6 +12,7 @@
 import sys
 import os
 
+
 class Logger:
 
     def __init__(self, w3, logger_address, logger_abi):
@@ -30,24 +31,24 @@ class Logger:
                     yield chunk
                 else:
                     break
-            
+
     def __recover_data_from_root(self, root):
 
         try:
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root':root})
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
                 return (True, merkle_filter.get_all_entries()[0]['args']['_data'])
-            
+
             data = []
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root':root})
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root': root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
                 for index in merkle_filter.get_all_entries()[0]['args']['_indices']:
 
-                    retrieve_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index':index})
+                    retrieve_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index': index})
                     if(len(retrieve_filter.get_all_entries()) == 0):
-                        retrieve_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index':index})
+                        retrieve_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index': index})
                     root_at_index = retrieve_filter.get_all_entries()[0]['args']['_root']
 
                     (ret_at_index, data_at_index) = self.__recover_data_from_root(root_at_index)
@@ -68,17 +69,17 @@ class Logger:
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
             sys.exit(1)
-                            
+
     def submit_indices_to_logger(self, log2_size, indices):
 
         try:
             nonce = self.__w3.eth.getTransactionCount(self.__user)
             txn = self.__logger.functions.calculateMerkleRootFromHistory(log2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
             signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
-            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
-                raise ValueError(receipt['transactionHash'].hex())
+                raise ValueError(tx_receipt['transactionHash'].hex())
             merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber'])
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
@@ -94,17 +95,17 @@ class Logger:
             return (merkle_index, merkle_root)
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
-                            
+
     def submit_data_to_logger(self, data):
 
         try:
             nonce = self.__w3.eth.getTransactionCount(self.__user)
             txn = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).buildTransaction({"nonce": nonce, "from": self.__user})
             signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
-            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)  
+            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)
             tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
             if tx_receipt['status'] == 0:
-                raise ValueError(receipt['transactionHash'].hex())
+                raise ValueError(tx_receipt['transactionHash'].hex())
             merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber'])
             merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
             merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
@@ -143,7 +144,7 @@ class Logger:
         data = []
         for x in range(self.__page_size):
             data.append(bytes(self.__bytes_of_word))
-        
+
         if(count > 0):
             (index, root) = self.submit_data_to_logger(data)
             while(count > 0):
@@ -154,7 +155,7 @@ class Logger:
         while(len(indices) > 1):
             indices_len = len(indices)
             new_indices = []
-            for x in range(int(indices_len/2)):
+            for x in range(int(indices_len / 2)):
                 partial_indices = []
                 partial_indices.append(indices.pop(0))
                 partial_indices.append(indices.pop(0))
@@ -162,17 +163,17 @@ class Logger:
                 new_indices.append(index)
             indices = new_indices
             index_log2_size += 1
-        
+
         return root
-            
+
     def download_file(self, root, filename):
-        
+
         (succ, data) = self.__recover_data_from_root(root)
 
         bytes_count = 0
         for b in data:
             bytes_count += len(b)
-        
+
         data.append(bytes(2**(self.__tree_log_2_size + 3) - bytes_count))
 
         if(succ):
