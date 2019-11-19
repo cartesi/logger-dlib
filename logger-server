@@ -1,0 +1,12 @@
+#!/bin/sh
+
+SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
+LOGGER_DIR=${LOGGER_PATH:-${SCRIPTPATH}/server}
+export PYTHONPATH=${LOGGER_DIR}/proto:${LOGGER_DIR}/../logger
+
+if [[ -z "${CARTESI_CONCERN_KEY}" ]] || [[ -z "${CARTESI_CONCERN_ADDRESS}" ]]; then
+    echo "Error: CARTESI_CONCERN_KEY and CARTESI_CONCERN_ADDRESS must be defined!"
+    exit 1;
+fi
+
+cd ${LOGGER_DIR} && python3 logger_server.py $@

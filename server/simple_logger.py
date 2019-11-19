@@ -11,11 +11,11 @@
 
 import sys
 from web3.auto import w3
-sys.path.append('../logger/')
 import json
-from logger import Logger
 import yaml
 import argparse
+
+from logger import Logger
 
 #Adding argument parser
 description = "A simple script to interact with Logger contract"

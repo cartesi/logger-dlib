@@ -11,21 +11,24 @@ COPY ./requirements.txt $BASE/
 
 RUN GRPC_PYTHON_BUILD_EXT_COMPILER_JOBS=$(nproc) pip3 install --user -r requirements.txt
 
-# Generating grpc-interfaces files
+# Generating grpc-interfaces python files
 # ----------------------------------------------------
-RUN mkdir -p ./lib/grpc-interfaces
-
-COPY ./lib/grpc-interfaces $BASE/lib/grpc-interfaces
-
-ENV PATH=/root/.local/bin:$PATH
-RUN cd ./lib/grpc-interfaces \
-    && ./generate_python_grpc_code.sh
+COPY ./lib/grpc-interfaces /root/grpc-interfaces
+RUN \
+    mkdir -p /root/grpc-interfaces/out \
+    && cd /root/grpc-interfaces \
+    && python3 -m grpc_tools.protoc -I. \
+        --python_out=./out --grpc_python_out=./out \
+        core.proto cartesi-base.proto manager-low.proto \
+        manager-high.proto logger-high.proto
 
 
 # Container final image
 # ----------------------------------------------------
 FROM python:3.7.5-alpine3.10
+
 ENV BASE /opt/cartesi
+ENV LOGGER_PATH $BASE/share/logger-server
 
 # install dockerize, as we need to wait on the contract
 # address to be extracted
@@ -42,17 +45,17 @@ WORKDIR $BASE
 COPY --from=build-image /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
-RUN mkdir -p ./lib/grpc-interfaces
-COPY --from=build-image $BASE/lib/grpc-interfaces/py $BASE/lib/grpc-interfaces/py
+RUN mkdir -p $BASE/bin $BASE/share $BASE/etc/keys $BASE/srv/logger-server/ $LOGGER_PATH/proto
 
-COPY ./manager_server/ $BASE/manager_server
-COPY ./logger/ $BASE/logger
-COPY ./transferred_files $BASE/transferred_files
-COPY ./logger-entrypoint.sh $BASE/
+COPY --from=build-image /root/grpc-interfaces/out/*.py $LOGGER_PATH/proto/
+COPY ./server/*.py $LOGGER_PATH/
+COPY ./logger/ $BASE/share/logger
+COPY ./logger-server $BASE/bin/logger-server
+COPY ./logger-entrypoint.sh $BASE/bin/logger-entrypoint.sh
 
 EXPOSE 50051
 
 CMD dockerize \
-    -wait file://$BASE/blockchain/contracts/deploy_done -timeout 120s \
-    -wait file://$BASE/keys/keys_done -timeout 120s \
-    ./logger-entrypoint.sh
+    -wait file://$BASE/share/blockchain/contracts/deploy_done -timeout 120s \
+    -wait file://$BASE/etc/keys/keys_done -timeout 120s \
+    $BASE/bin/logger-entrypoint.sh

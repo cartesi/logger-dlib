@@ -21,10 +21,6 @@ import argparse
 import shutil
 import os
 
-#So the cartesi GRPC modules are in path
-import sys
-sys.path.insert(0,'../lib/grpc-interfaces/py')
-
 import logger_high_pb2_grpc
 import logger_high_pb2
 import cartesi_base_pb2
@@ -58,7 +54,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
 
             file_path = request.path
             LOGGER.info("Submit file with path: {}".format(file_path))
-            
+
             root = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
             response = cartesi_base_pb2.Hash(content=bytes.fromhex(root))
             return response
@@ -104,7 +100,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
 def serve(args):
     listening_add = args.address
     listening_port = args.port
-    
+
     manager_address = '{}:{}'.format(listening_add, listening_port)
     logger_registry_manager = LoggerRegistryManager()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

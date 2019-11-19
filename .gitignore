@@ -6,6 +6,7 @@ node_modules
 *.abi
 *.log
 /out
+/server/proto
 build
 .venv
 .vscode
