@@ -11,12 +11,11 @@
 
 import sys
 import os
-from web3 import Web3
 
 class Logger:
 
-    def __init__(self, endpoint, logger_address, logger_abi):
-        self.__w3 = Web3(Web3.HTTPProvider(endpoint, request_kwargs={'timeout': 60}))
+    def __init__(self, w3, logger_address, logger_abi):
+        self.__w3 = w3
         self.__key = bytes.fromhex(os.environ.get("CARTESI_CONCERN_KEY"))
         self.__user = self.__w3.toChecksumAddress(os.environ.get("CARTESI_CONCERN_ADDRESS"))
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)

@@ -10,5 +10,4 @@ docker-compose.yaml
 deployer
 dispatcher
 logger_test
-setup
 test

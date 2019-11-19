@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import sys
+from web3.auto import w3
 sys.path.append('../logger/')
 import json
 from logger import Logger
@@ -46,32 +47,20 @@ parser.add_argument(
     required=True,
     help='The tree log2 size of the Logger'
 )
-parser.add_argument(
-    '--url', '-u',
-    dest='url',
-    default="127.0.0.1:8545",
-    help='Url of the blockchain (default: {})'.format("127.0.0.1:8545")
-)
 
 #Getting arguments
 args = parser.parse_args()
 
-with open('../blockchain/contracts/Logger.json') as json_file:
-    logger_abi = json.load(json_file)['abi']
+fname = '../blockchain/contracts/Logger.json'
+### XXX: for local testing uncomment below. we should make this a configuration (arg) ###
+#fname = '../build/contracts/Logger.json'
+with open(fname) as json_file:
+    logger_data = json.load(json_file)
+    logger_abi = logger_data['abi']
+    networkId = w3.net.version
+    deployed_address = logger_data['networks'][networkId]['address']
 
-with open('../logger/config/address') as deployed_file:
-    deployed_address = deployed_file.readlines()[0].strip().strip('"')
-
-### for local testing ###
-# with open('../build/contracts/Logger.json') as json_file:
-#      logger_abi = json.load(json_file)['abi']
- 
-# with open('../test/deployedAddresses.json') as json_file:
-#     deployed_address = json.load(json_file)["logger_address"]
-
-blockchain_url = "http://{}".format(args.url)
-
-test_logger = Logger(blockchain_url, deployed_address, logger_abi)
+test_logger = Logger(w3, deployed_address, logger_abi)
 # change this to automatic way
 test_logger.instantiate(args.blob_log2_size, args.tree_log2_size)
 

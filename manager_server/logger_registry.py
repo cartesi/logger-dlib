@@ -32,11 +32,10 @@ class NotReadyException(Exception):
 
 class LoggerRegistryManager:
 
-    def __init__(self, blockchain_address):
+    def __init__(self):
         self.global_lock = Lock()
         self.registry = {}
         self.shutting_down = False
-        self.blockchain_address = blockchain_address
 
     def submit_file(self, file_path, page_log2_size, tree_log2_size):
         
@@ -89,7 +88,7 @@ class LoggerRegistryManager:
                         return (False, "")
             else:
                 self.registry[key] = LoggerStatus(result_path)
-                command = "python3 simple_logger.py -a {} -p {} -u {} -b {} -t {}&".format(action, key, self.blockchain_address, page_log2_size, tree_log2_size)
+                command = "python3 simple_logger.py -a {} -p {} -b {} -t {}&".format(action, key, page_log2_size, tree_log2_size)
                 LOGGER.info("Issuing: {}...".format(command))
                 os.system(command)
                 return (False, "")
@@ -100,7 +99,3 @@ class LoggerStatus:
         self.lock = Lock()
         self.result_path = result_path
         self.is_ready = False
-
-
-
-

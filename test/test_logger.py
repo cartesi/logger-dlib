@@ -10,6 +10,7 @@
 # specific language governing permissions and limitations under the License.
 
 import sys
+from web3.auto import w3
 sys.path.append('../logger/')
 import json
 import filecmp
@@ -17,17 +18,18 @@ from logger import Logger
 
 # start of main test
 
-with open('../build/contracts/Logger.json') as json_file:
+fname = '../build/contracts/Logger.json'
+with open(fname) as json_file:
     logger_data = json.load(json_file)
 
-with open('./deployedAddresses.json') as json_file:
-    deployed_address = json.load(json_file)
+networkId = w3.net.version
+print("Getting Logger contract address for network {} from {}".format(networkId, fname))
+assert networkId in logger_data['networks'], "Network " + networkId + " not found in " + fname
+deployed_address = logger_data['networks'][networkId]['address']
+print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
 # TODO: Make endpoint and page_log2_size tree_log2_size configurable
-test_logger = Logger("http://127.0.0.1:8545",
-    deployed_address["logger_address"],
-    logger_data['abi'])
-
+test_logger = Logger(w3, deployed_address, logger_data['abi'])
 page_log2_size = 2
 tree_log2_size = 5
 test_logger.instantiate(page_log2_size, tree_log2_size)

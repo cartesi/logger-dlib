@@ -36,8 +36,6 @@ LOGGER = utils.configure_log(LOGGER)
 
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
-BLOCKCHAIN_ADDRESS = 'localhost'
-BLOCKCHAIN_PORT = 8545
 SLEEP_TIME = 5
 
 class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
@@ -107,11 +105,8 @@ def serve(args):
     listening_add = args.address
     listening_port = args.port
     
-    blockchain_add = args.blockchain_address
-    blockchain_port = args.blockchain_port
-
     manager_address = '{}:{}'.format(listening_add, listening_port)
-    logger_registry_manager = LoggerRegistryManager('{}:{}'.format(blockchain_add, blockchain_port))
+    logger_registry_manager = LoggerRegistryManager()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager),
                                                       server)
@@ -155,19 +150,6 @@ if __name__ == '__main__':
         default=LISTENING_PORT,
         help='Port to listen (default: {})'.format(LISTENING_PORT)
     )
-    parser.add_argument(
-        '--blockchain-address', '-ba',
-        dest='blockchain_address',
-        default=BLOCKCHAIN_ADDRESS,
-        help='Address of blockchain (default: {})'.format(BLOCKCHAIN_ADDRESS)
-    )
-    parser.add_argument(
-        '--blockchain-port', '-bp',
-        dest='blockchain_port',
-        default=BLOCKCHAIN_PORT,
-        help='Port of blockchain (default: {})'.format(BLOCKCHAIN_PORT)
-    )
-
     #Getting arguments
     args = parser.parse_args()
 

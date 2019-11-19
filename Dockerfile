@@ -53,6 +53,6 @@ COPY ./logger-entrypoint.sh $BASE/
 EXPOSE 50051
 
 CMD dockerize \
-    -wait file://$BASE/logger/config/address_done -timeout 120s \
+    -wait file://$BASE/blockchain/contracts/deploy_done -timeout 120s \
     -wait file://$BASE/keys/keys_done -timeout 120s \
     ./logger-entrypoint.sh

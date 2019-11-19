@@ -34,8 +34,8 @@ import argparse
 #from IPython import embed
 
 SLEEP_TIME = 5
+DEFAULT_ADDRESS = 'localhost'
 DEFAULT_PORT = 50051
-DEFAULT_ADD = 'localhost'
 DEFAULT_MODE = 'submit'
 
 def port_number(port):
@@ -49,7 +49,7 @@ def port_number(port):
 
 def get_args():
     parser = argparse.ArgumentParser(description='GRPC test client to the logger manager server')
-    parser.add_argument('--address', '-a', dest='address', default=DEFAULT_ADD, help="Logger manager server address")
+    parser.add_argument('--address', '-a', dest='address', default=DEFAULT_ADDRESS, help="Logger manager server address")
     parser.add_argument('--port', '-p', type=port_number, dest='port', default=DEFAULT_PORT, help="Logger manager server port")
     parser.add_argument('--container', '-c', action="store_true", dest="container_server", help="Fixes file references for when logger manager server is running from docker container")
     parser.add_argument('--mode', '-m', dest='mode', default=DEFAULT_MODE, help="Client mode can be submit or download")
@@ -70,14 +70,14 @@ def run():
         try:
             if mode == "submit":
                 #Submit
-                print("\n\n\SUBMIT TESTS\n\n\n")
+                print("\n\nSUBMIT TESTS\n\n")
 
                 request = logger_high_pb2.SubmitFileRequest(path="../test/test_file", page_log2_size=5, tree_log2_size=5)
                 print("Asking to submit a new file")
                 print("Server response:\n{}".format(stub_high.SubmitFile(request).content.hex()))
             elif mode == "download":
                 #Download
-                print("\n\n\DOWNLOAD TESTS\n\n\n")
+                print("\n\nDOWNLOAD TESTS\n\n")
 
                 root = cartesi_base_pb2.Hash(content=bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"))
                 request = logger_high_pb2.DownloadFileRequest(path="../test/recovered_file", root=root, page_log2_size=5, tree_log2_size=8)

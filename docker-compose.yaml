@@ -15,6 +15,8 @@ services:
     build:
       context: .
       dockerfile: ./deployer/Dockerfile
+      args: 
+        NPM_TOKEN: ${NPM_TOKEN}
     volumes:
       - truffle_data:/usr/src/app/build
     networks:
@@ -27,20 +29,17 @@ services:
       - ganache_data:/keys
       - key_data:/key-0
 
-  logger_setup:
-    depends_on: [deployer]
-    build: ./setup
-    volumes:
-      - truffle_data:/opt/cartesi/blockchain
-      - logger_data:/opt/cartesi/logger/config
-
   logger:
-    depends_on: [key_distributor, logger_setup]
+    depends_on: [key_distributor]
     build: .
     volumes:
       - truffle_data:/opt/cartesi/blockchain
-      - logger_data:/opt/cartesi/logger/config
+      - logger_data:/opt/cartesi/logger
       - key_data:/opt/cartesi/keys
+    ports: 
+      - 50051:50051
+    environment: 
+      WEB3_PROVIDER_URI: http://ganache:8545
     networks:
       - ganache
 

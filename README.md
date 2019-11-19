@@ -29,7 +29,8 @@ python test_logger.py
 ### Examples
 
 ```python
-test_logger = Logger("http://127.0.0.1:8545", deployed_address["logger_address"], logger_data['abi'])
+w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
+test_logger = Logger(w3, deployed_address["logger_address"], logger_data['abi'])
 test_logger.instantiate(2, 5)
 ```
 The above codes first create an object of the Logger class with the blockchain endpoint, logger contract address and the abi definition of the contract. Then call the instantiate function with `page_log2_size` and the `tree_log2_size` to prepare the data structure for later usage.
