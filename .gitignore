@@ -7,6 +7,7 @@ node_modules
 *.log
 /out
 /server/proto
+/logger_test/target
 build
 .venv
 .vscode

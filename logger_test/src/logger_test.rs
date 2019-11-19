@@ -27,12 +27,10 @@ use super::dispatcher::{Archive, DApp, Reaction};
 use super::error::Result;
 use super::error::*;
 use super::ethabi::Token;
+use super::ethereum_types::{Address, H256, U256};
 use super::transaction;
 use super::transaction::TransactionRequest;
-use super::ethereum_types::{Address, H256, U256};
-use super::{
-    LOGGER_SERVICE_NAME, LOGGER_METHOD_SUBMIT,
-    LOGGER_METHOD_DOWNLOAD, FilePath, Hash};
+use super::{FilePath, Hash, LOGGER_METHOD_DOWNLOAD, LOGGER_METHOD_SUBMIT, LOGGER_SERVICE_NAME};
 
 pub struct LoggerTest();
 
@@ -66,11 +64,7 @@ impl From<LoggerTestCtxParsed> for LoggerTestCtx {
 
 impl DApp<()> for LoggerTest {
     /// React to the logger test contract, Idle/Waiting/Finished
-    fn react(
-        instance: &state::Instance,
-        archive: &Archive,
-        _: &(),
-    ) -> Result<Reaction> {
+    fn react(instance: &state::Instance, archive: &Archive, _: &()) -> Result<Reaction> {
         // get context (state) of the logger test instance
         let parsed: LoggerTestCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
@@ -92,12 +86,12 @@ impl DApp<()> for LoggerTest {
         // if we reach this code, the instance is active, check the user
         let user = instance.concern.user_address.clone();
         if user != ctx.user {
-            return Err(Error::from(ErrorKind::InvalidContractState(
-                String::from("User is not an user of the test contract"),
-            )));
+            return Err(Error::from(ErrorKind::InvalidContractState(String::from(
+                "User is not an user of the test contract",
+            ))));
         };
         trace!("User played (index {}) is: {:?}", instance.index, user);
-        
+
         match ctx.current_state.as_ref() {
             "Idle" => {
                 // claim Submitting in logger test contract
@@ -109,30 +103,30 @@ impl DApp<()> for LoggerTest {
                     strategy: transaction::Strategy::Simplest,
                 };
                 return Ok(Reaction::Transaction(request));
-            },
+            }
             "Submitting" => {
-                
-                let path = "../transferred_files/test_file".to_string();
+                let path = "../test/test_file".to_string();
 
                 trace!("Submitting file: {}...", path);
-                let request = FilePath {
-                    path: path.clone()
-                };
+                let request = FilePath { path: path.clone() };
 
-                let processed_response: Hash = archive.get_response(
-                    LOGGER_SERVICE_NAME.to_string(),
-                    path.clone(),
-                    LOGGER_METHOD_SUBMIT.to_string(),
-                    request.into())?
+                let processed_response: Hash = archive
+                    .get_response(
+                        LOGGER_SERVICE_NAME.to_string(),
+                        path.clone(),
+                        LOGGER_METHOD_SUBMIT.to_string(),
+                        request.into(),
+                    )?
                     .map_err(move |_e| {
                         Error::from(ErrorKind::ArchiveInvalidError(
                             LOGGER_SERVICE_NAME.to_string(),
                             path,
-                            LOGGER_METHOD_SUBMIT.to_string()))
+                            LOGGER_METHOD_SUBMIT.to_string(),
+                        ))
                     })?
                     .into();
                 trace!("Submitted! Result: {:?}...", processed_response.hash);
-                    
+
                 // claim Downloading in logger test contract
                 let request = TransactionRequest {
                     concern: instance.concern.clone(),
@@ -140,39 +134,37 @@ impl DApp<()> for LoggerTest {
                     function: "claimDownloading".into(),
                     data: vec![
                         Token::Uint(instance.index),
-                        Token::FixedBytes(
-                            processed_response.hash.to_vec(),
-                        )
+                        Token::FixedBytes(processed_response.hash.to_vec()),
                     ],
                     strategy: transaction::Strategy::Simplest,
                 };
                 return Ok(Reaction::Transaction(request));
-            },
+            }
             "Downloading" => {
-                
                 let hash = ctx.submitted_hash.clone();
                 trace!("Download file for hash: {:?}...", hash);
 
-                let request = Hash {
-                    hash: hash.clone()
-                };
+                let request = Hash { hash: hash.clone() };
 
-                let processed_response: FilePath = archive.get_response(
-                    LOGGER_SERVICE_NAME.to_string(),
-                    format!("{:x}", hash),
-                    LOGGER_METHOD_DOWNLOAD.to_string(),
-                    request.into())?
+                let processed_response: FilePath = archive
+                    .get_response(
+                        LOGGER_SERVICE_NAME.to_string(),
+                        format!("{:x}", hash),
+                        LOGGER_METHOD_DOWNLOAD.to_string(),
+                        request.into(),
+                    )?
                     .map_err(move |_e| {
                         Error::from(ErrorKind::ArchiveInvalidError(
                             LOGGER_SERVICE_NAME.to_string(),
                             format!("{:x}", hash),
-                            LOGGER_METHOD_DOWNLOAD.to_string()))
+                            LOGGER_METHOD_DOWNLOAD.to_string(),
+                        ))
                     })?
                     .into();
                 trace!("Downloaded! File stored at: {}...", processed_response.path);
-                
+
                 // TODO: compare the original file and downloaded file
-                    
+
                 // claim Submitting in logger test contract
                 let request = TransactionRequest {
                     concern: instance.concern.clone(),
@@ -182,9 +174,8 @@ impl DApp<()> for LoggerTest {
                     strategy: transaction::Strategy::Simplest,
                 };
                 return Ok(Reaction::Transaction(request));
-
             }
-            _ => { 
+            _ => {
                 return Ok(Reaction::Idle);
             }
         };
