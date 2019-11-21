@@ -35,6 +35,10 @@ class Logger:
     def __recover_data_from_root(self, root):
 
         try:
+            cached_data = self.__download_cache.get(root)
+            if cached_data is not None:
+                return (True, cached_data)
+
             merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
@@ -54,6 +58,7 @@ class Logger:
                     (ret_at_index, data_at_index) = self.__recover_data_from_root(root_at_index)
                     data += data_at_index
 
+                self.__download_cache[root] = data
                 return (True, data)
             return (False, [])
 
@@ -65,6 +70,7 @@ class Logger:
         self.__tree_log_2_size = tree_log2_size
         self.__page_size = 2**self.__page_log_2_size
         self.__tree_size = 2**self.__tree_log_2_size
+        self.__download_cache = {}
 
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
