@@ -12,6 +12,7 @@ specific language governing permissions and limitations under the License.
 """
 
 from threading import Lock
+import subprocess
 import utils
 import os
 
@@ -47,10 +48,9 @@ class LoggerRegistryManager:
             LOGGER.error(err_msg)
             raise FilePathException(err_msg)
 
-        (is_ready, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
+        (is_ready, err_msg, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            err_msg = "Result is not yet ready for submit file: {}".format(file_path)
             LOGGER.error(err_msg)
             raise NotReadyException(err_msg)
         else:
@@ -59,10 +59,9 @@ class LoggerRegistryManager:
 
     def download_file(self, root, page_log2_size, tree_log2_size):
 
-        (is_ready, result_path) = self.register_action("download", root, page_log2_size, tree_log2_size)
+        (is_ready, err_msg, result_path) = self.register_action("download", root, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            err_msg = "Result is not yet ready for download file: {}".format(root)
             LOGGER.error(err_msg)
             raise NotReadyException(err_msg)
         else:
@@ -75,31 +74,40 @@ class LoggerRegistryManager:
     def register_action(self, action, key, page_log2_size, tree_log2_size):
 
         result_path = "{}.{}".format(key, action)
+        err_msg = "Result is not yet ready for file: {}".format(result_path)
         # Acquiring global lock and releasing it when completed
         LOGGER.debug("Acquiring registry {} global lock".format(action))
         with self.global_lock:
             LOGGER.debug("Lock acquired")
             if key in self.registry.keys():
-                # already contains the key
+                # already contains the request of key
                 if self.registry[key].is_ready:
-                    return (True, self.registry[key].result_path)
+                    return (True, "", self.registry[key].result_path)
                 else:
                     if os.path.exists(result_path) and os.path.isfile(result_path):
                         self.registry[key].is_ready = True
-                        return (True, result_path)
+                        return (True, "", result_path)
                     else:
-                        return (False, "")
+                        process_terminated = self.registry[key].process_object.poll()
+                        if process_terminated is None:
+                            return (False, err_msg, "")
+                        else:
+                            err_msg = "Fail to process file: {}, code: {}".format(result_path, process_terminated)
+                            # clean cache for failing entry
+                            self.registry.pop(key)
+                            return (False, err_msg, "")
             else:
-                self.registry[key] = LoggerStatus(result_path)
-                command = "python3 simple_logger.py -a {} -p {} -b {} -t {}&".format(action, key, page_log2_size, tree_log2_size)
-                LOGGER.info("Issuing: {}...".format(command))
-                os.system(command)
-                return (False, "")
+                args = ["python3", "simple_logger.py", "-a", action,  "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size)]
+                LOGGER.info("Issuing: {}...".format(args))
+                p = subprocess.Popen(args)
+                self.registry[key] = LoggerStatus(result_path, p)
+                return (False, err_msg, "")
 
 
 class LoggerStatus:
 
-    def __init__(self, result_path):
+    def __init__(self, result_path, p):
         self.lock = Lock()
         self.result_path = result_path
         self.is_ready = False
+        self.process_object = p
