@@ -29,7 +29,6 @@ assert networkId in logger_data['networks'], "Network " + networkId + " not foun
 deployed_address = logger_data['networks'][networkId]['address']
 print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
-# TODO: Make endpoint and page_log2_size tree_log2_size configurable
 test_logger = Logger(w3, deployed_address, logger_data['abi'])
 page_log2_size = 2
 tree_log2_size = 5
@@ -185,6 +184,58 @@ root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("bff9861e078c0edaf8d7d0f164e6582d7926bc5e7c9248a95eb3d2a38bb7f0b5"), "Hashes not match"
 print("Test case 15 passed!")
+
+page_log2_size = 7
+tree_log2_size = 17
+test_logger.instantiate(page_log2_size, tree_log2_size)
+
+root = bytes.fromhex("cd9665e5ea391d134dfbe45ca04a55ef8adf164dbc4c40ad31ae185f8f1af923")
+output_file = "0-00.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 16 passed!")
+
+root = bytes.fromhex("117fea97b997fe7e3b85dc5783aa161001c325a7e95a297c8668e087a70c282a")
+output_file = "0-01.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 17 passed!")
+
+root = bytes.fromhex("296833044d8a51958bf4eb4e3f20c4d070a1a96b8dbc31d7ca771c999391a8af")
+output_file = "0-02.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 18 passed!")
+
+root = bytes.fromhex("f188e44f55b7f05c2b746d88670f7c4c8d3728626bcaf4859cfd35a3b903f313")
+output_file = "0-03.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 19 passed!")
+
+root = bytes.fromhex("655382e190b6cf44f0df8a8cd97331a63e9b7c678d0a4c783fb3a176a27f5f3e")
+output_file = "0-04.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 20 passed!")
+
+root = bytes.fromhex("bf7fc30e5e81cc99adc3c4abcd28c8ebcd84b75314011a9cb5d331361e7782ab")
+output_file = "0-05.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 21 passed!")
+
+root = bytes.fromhex("3fb2f3a2da3b7016648e91f04ef78ccd5c8ac8c471bc0f2f7cf7c9517f653ce7")
+output_file = "0-06.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 22 passed!")
+
+root = bytes.fromhex("bff9861e078c0edaf8d7d0f164e6582d7926bc5e7c9248a95eb3d2a38bb7f0b5")
+output_file = "0-07.json.br.tar.download"
+
+test_logger.download_file(root, output_file)
+print("Test case 23 passed!")
 
 # end of test
 print("All tests passed!")
