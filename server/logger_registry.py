@@ -13,13 +13,10 @@ specific language governing permissions and limitations under the License.
 
 from threading import Lock
 import subprocess
-import utils
+import logging
 import os
 
-WAIT_SERVER_TIME = 2
-
-LOGGER = utils.get_new_logger(__name__)
-LOGGER = utils.configure_log(LOGGER)
+LOGGER = logging.getLogger(__name__)
 
 
 class HashException(Exception):
@@ -34,6 +31,15 @@ class NotReadyException(Exception):
     pass
 
 
+class LoggerStatus:
+
+    def __init__(self, result_path, p):
+        self.lock = Lock()
+        self.result_path = result_path
+        self.is_ready = False
+        self.process_object = p
+
+
 class LoggerRegistryManager:
 
     def __init__(self):
@@ -44,28 +50,24 @@ class LoggerRegistryManager:
     def submit_file(self, file_path, page_log2_size, tree_log2_size):
 
         if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            err_msg = "The submit file path: {} is not valid".format(file_path)
-            LOGGER.error(err_msg)
-            raise FilePathException(err_msg)
+            raise FilePathException("The submit file path: {} is not valid".format(file_path))
 
         (is_ready, err_msg, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            LOGGER.error(err_msg)
             raise NotReadyException(err_msg)
-        else:
-            with open(result_path, "r") as f:
-                return f.readline()
+
+        with open(result_path, "r") as f:
+            return f.readline()
 
     def download_file(self, root, page_log2_size, tree_log2_size):
 
         (is_ready, err_msg, result_path) = self.register_action("download", root, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            LOGGER.error(err_msg)
             raise NotReadyException(err_msg)
-        else:
-            return result_path
+
+        return result_path
 
     """
     Here starts the "internal" API, use the methods bellow taking the right precautions such as holding a lock
@@ -76,38 +78,28 @@ class LoggerRegistryManager:
         result_path = "{}.{}".format(key, action)
         err_msg = "Result is not yet ready for file: {}".format(result_path)
         # Acquiring global lock and releasing it when completed
-        LOGGER.debug("Acquiring registry {} global lock".format(action))
+        LOGGER.debug("Acquiring registry %s global lock", action)
         with self.global_lock:
             LOGGER.debug("Lock acquired")
             if key in self.registry.keys():
                 # already contains the request of key
                 if self.registry[key].is_ready:
-                    return (True, "", self.registry[key].result_path)
-                else:
-                    if os.path.exists(result_path) and os.path.isfile(result_path):
-                        self.registry[key].is_ready = True
-                        return (True, "", result_path)
-                    else:
-                        process_terminated = self.registry[key].process_object.poll()
-                        if process_terminated is None:
-                            return (False, err_msg, "")
-                        else:
-                            err_msg = "Fail to process file: {}, code: {}".format(result_path, process_terminated)
-                            # clean cache for failing entry
-                            self.registry.pop(key)
-                            return (False, err_msg, "")
-            else:
-                args = ["python3", "simple_logger.py", "-a", action,  "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size)]
-                LOGGER.info("Issuing: {}...".format(args))
-                p = subprocess.Popen(args)
-                self.registry[key] = LoggerStatus(result_path, p)
-                return (False, err_msg, "")
+                    return (True, None, self.registry[key].result_path)
 
+                if os.path.exists(result_path) and os.path.isfile(result_path):
+                    self.registry[key].is_ready = True
+                    return (True, None, result_path)
 
-class LoggerStatus:
+                process_terminated = self.registry[key].process_object.poll()
+                if process_terminated is None:
+                    return (False, err_msg, None)
 
-    def __init__(self, result_path, p):
-        self.lock = Lock()
-        self.result_path = result_path
-        self.is_ready = False
-        self.process_object = p
+                # clean cache for failing entry
+                self.registry.pop(key)
+                return (False, "Fail to process file: {}, code: {}".format(result_path, process_terminated), None)
+
+            args = ["python3", "simple_logger.py", "-a", action, "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size)]
+            LOGGER.info("Issuing: %s ...", args)
+            p = subprocess.Popen(args)
+            self.registry[key] = LoggerStatus(result_path, p)
+            return (False, err_msg, None)

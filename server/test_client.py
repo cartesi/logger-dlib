@@ -13,10 +13,10 @@ specific language governing permissions and limitations under the License.
 
 from __future__ import print_function
 
-import grpc
 import time
 import datetime
 import argparse
+import grpc
 
 import cartesi_base_pb2
 import logger_high_pb2
@@ -42,12 +42,8 @@ def get_args():
     parser = argparse.ArgumentParser(description='GRPC test client to the logger manager server')
     parser.add_argument('--address', '-a', dest='address', default=DEFAULT_ADDRESS, help="Logger manager server address")
     parser.add_argument('--port', '-p', type=port_number, dest='port', default=DEFAULT_PORT, help="Logger manager server port")
-    parser.add_argument('--container', '-c', action="store_true", dest="container_server", help="Fixes file references for when logger manager server is running from docker container")
     parser.add_argument('--mode', '-m', dest='mode', default=DEFAULT_MODE, help="Client mode can be submit or download")
     args = parser.parse_args()
-
-    global CONTAINER_SERVER
-    CONTAINER_SERVER = args.container_server
 
     return (args.address, args.port, args.mode)
 

@@ -9,9 +9,9 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from web3.auto import w3
 import json
 import argparse
+from web3.auto import w3
 
 from logger import Logger
 
@@ -62,11 +62,11 @@ test_logger = Logger(w3, deployed_address, logger_abi)
 # change this to automatic way
 test_logger.instantiate(args.blob_log2_size, args.tree_log2_size)
 
-if (args.action == "download"):
+if args.action == "download":
 
     test_logger.download_file(bytes.fromhex(args.param), args.param + ".download")
 
-elif (args.action == "submit"):
+elif args.action == "submit":
 
     root = test_logger.submit_file(args.param)
     with open(args.param + ".submit", "w") as f:

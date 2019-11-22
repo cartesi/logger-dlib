@@ -13,24 +13,24 @@ specific language governing permissions and limitations under the License.
 
 from concurrent import futures
 import time
-import grpc
-import traceback
 import argparse
 import shutil
 import os
+import logging
+import logging.config
+import logging.handlers
+import grpc
 
 import logger_high_pb2_grpc
 import logger_high_pb2
 import cartesi_base_pb2
-import utils
 from logger_registry import LoggerRegistryManager, FilePathException, HashException, NotReadyException
-
-LOGGER = utils.get_new_logger(__name__)
-LOGGER = utils.configure_log(LOGGER)
 
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
 SLEEP_TIME = 5
+
+LOGGER = logging.getLogger(__name__)
 
 
 class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
@@ -43,38 +43,36 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             context.set_details("Server is shutting down, not accepting new requests")
             context.set_code(grpc.StatusCode.UNAVAILABLE)
             return True
-        else:
-            return False
+        return False
 
     def SubmitFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return
+                return cartesi_base_pb2.Hash()
 
             file_path = request.path
-            LOGGER.info("Submit file with path: {}".format(file_path))
+            LOGGER.info("Submit file with path: %s", file_path)
 
             root = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
-            response = cartesi_base_pb2.Hash(content=bytes.fromhex(root))
-            return response
+            return cartesi_base_pb2.Hash(content=bytes.fromhex(root))
 
         except (FilePathException, NotReadyException) as e:
-            LOGGER.error(e)
+            LOGGER.exception(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
         # Generic error catch
         except Exception as e:
-            LOGGER.error("An exception occurred: {}\nTraceback: {}".format(e, traceback.format_exc()))
+            LOGGER.exception("An exception occurred")
             context.set_details('An exception with message "{}" was raised!'.format(e))
             context.set_code(grpc.StatusCode.UNKNOWN)
 
     def DownloadFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return
+                return logger_high_pb2.FilePath()
 
             root = request.root.content.hex()
-            LOGGER.info("Download file with root hash: {}".format(root))
+            LOGGER.info("Download file with root hash: %s", root)
 
             path = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
             new_path = request.path
@@ -83,32 +81,46 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             if os.path.exists(path) and os.path.isfile(path):
                 shutil.move(path, new_path)
 
-            response = logger_high_pb2.FilePath(path=new_path)
-            return response
+            return logger_high_pb2.FilePath(path=new_path)
 
         except (HashException, NotReadyException) as e:
-            LOGGER.error(e)
+            LOGGER.exception(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
         # Generic error catch
         except Exception as e:
-            LOGGER.error("An exception occurred: {}\nTraceback: {}".format(e, traceback.format_exc()))
+            LOGGER.exception("An exception occurred")
             context.set_details('An exception with message "{}" was raised!'.format(e))
             context.set_code(grpc.StatusCode.UNKNOWN)
 
 
-def serve(args):
-    listening_add = args.address
-    listening_port = args.port
+def configure_log():
+    # Setting formatter
+    formatter = logging.Formatter(
+        '%(asctime)s %(thread)d %(levelname)-s %(name)s %(lineno)s - %(funcName)s: %(message)s')
 
-    manager_address = '{}:{}'.format(listening_add, listening_port)
+    # Stream log handler
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setFormatter(formatter)
+
+    # Configuring root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    root_logger.addHandler(stream_handler)
+
+
+def serve(arguments):
+    configure_log()
+
     logger_registry_manager = LoggerRegistryManager()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager), server)
 
-    server.add_insecure_port(manager_address)
+    LOGGER.info("Starting Server at %s:%s", arguments.address, arguments.port)
+    server.add_insecure_port('{}:{}'.format(arguments.address, arguments.port))
     server.start()
-    LOGGER.info("Server started, listening on address {} and port {}".format(listening_add, listening_port))
+    LOGGER.info("Server started successfully")
     try:
         while True:
             time.sleep(SLEEP_TIME)
@@ -146,7 +158,5 @@ if __name__ == '__main__':
         default=LISTENING_PORT,
         help='Port to listen (default: {})'.format(LISTENING_PORT)
         )
-    # Getting arguments
-    args = parser.parse_args()
 
-    serve(args)
+    serve(parser.parse_args())
