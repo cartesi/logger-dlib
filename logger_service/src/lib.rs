@@ -24,21 +24,13 @@
 
 
 #![warn(unused_extern_crates)]
-pub mod logger_test;
+pub mod logger_service;
 
-extern crate logger_service;
-extern crate error;
-
-#[macro_use]
-extern crate serde_derive;
-#[macro_use]
-extern crate log;
-extern crate dispatcher;
-extern crate ethabi;
+extern crate grpc;
 extern crate ethereum_types;
-extern crate transaction;
+extern crate logger_interface;
 
-pub use logger_test::LoggerTest;
+pub use logger_interface::{cartesi_base, logger_high};
 pub use logger_service::{
     DownloadFileRequest, SubmitFileRequest,
     LOGGER_SERVICE_NAME, LOGGER_METHOD_SUBMIT,

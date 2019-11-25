@@ -1444,20 +1444,27 @@ dependencies = [
 ]
 
 [[package]]
-name = "logger_test"
+name = "logger_service"
 version = "0.1.0"
 dependencies = [
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ethereum-types 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "grpc 0.6.1 (git+https://github.com/cartesi/grpc-rust?branch=make_marshall_public)",
+ "logger_interface 0.1.0",
+]
+
+[[package]]
+name = "logger_test"
+version = "0.1.0"
+dependencies = [
  "configuration 0.1.0",
  "dispatcher 0.1.0",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "error 0.1.0",
  "ethabi 6.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "ethereum-types 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "grpc 0.6.1 (git+https://github.com/cartesi/grpc-rust?branch=make_marshall_public)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "logger_interface 0.1.0",
- "protobuf 2.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "logger_service 0.1.0",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)",

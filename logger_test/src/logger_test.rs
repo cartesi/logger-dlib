@@ -189,7 +189,7 @@ impl DApp<()> for LoggerTest {
     
     fn get_pretty_instance(
         instance: &state::Instance,
-        archive: &Archive,
+        _archive: &Archive,
         _: &(),
     ) -> Result<state::Instance> {
         

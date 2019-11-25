@@ -8,18 +8,15 @@ authors = ["Cartesi Team"]
 [dependencies]
 log = "0.4"
 env_logger = "0.6.0"
-error = { path = "../dispatcher/error" }
-transaction = { path = "../dispatcher/transaction" }
-configuration = { path = "../dispatcher/configuration" }
-utils = { path = "../dispatcher/utils" }
 ethereum-types = "0.4"
 ethabi = "6.1.0"
 serde_json = "1.0"
 serde = "1.0.0"
 serde_derive = "1.0.0"
-logger_interface = { path = "../lib/grpc-interfaces/logger_interface" }
 state = { path = "../dispatcher/state" }
+error = { path = "../dispatcher/error" }
 dispatcher = { path = "../dispatcher/dispatcher" }
-grpc = { git = "https://github.com/cartesi/grpc-rust", branch = "make_marshall_public" }
-protobuf = "=2.7.0"
-bytes = "0.4.12"
+transaction = { path = "../dispatcher/transaction" }
+configuration = { path = "../dispatcher/configuration" }
+utils = { path = "../dispatcher/utils" }
+logger_service = { path = "../logger_service" }

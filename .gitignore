@@ -8,6 +8,7 @@ node_modules
 /out
 /server/proto
 /logger_test/target
+/logger_service/target
 build
 .venv
 .vscode
