@@ -26,6 +26,7 @@ import logger_high_pb2
 import cartesi_base_pb2
 from logger_registry import LoggerRegistryManager, FilePathException, HashException, NotReadyException
 
+DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
 SLEEP_TIME = 5
@@ -110,10 +111,23 @@ def configure_log():
     root_logger.addHandler(stream_handler)
 
 
+def check_data_directory(directory):
+    data_dir = os.path.realpath(os.path.expanduser(os.path.expandvars(directory)))
+    if not os.path.exists(data_dir):
+        raise FileNotFoundError("Data directory doesn't exist: {}".format(directory))
+    if not os.path.isdir(data_dir):
+        raise NotADirectoryError("Data path is not a directory: {}".format(directory))
+    if not os.access(data_dir, os.W_OK):
+        raise PermissionError("Cannot write to Data directory: {}".format(directory))
+    return data_dir
+
+
 def serve(arguments):
     configure_log()
 
-    logger_registry_manager = LoggerRegistryManager()
+    data_dir = check_data_directory(arguments.data_directory)
+
+    logger_registry_manager = LoggerRegistryManager(data_dir)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager), server)
 
@@ -157,6 +171,12 @@ if __name__ == '__main__':
         dest='port',
         default=LISTENING_PORT,
         help='Port to listen (default: {})'.format(LISTENING_PORT)
+        )
+    parser.add_argument(
+        '--data_dir', '-d',
+        dest='data_directory',
+        default=DEFAULT_DATA_DIR,
+        help='Data directory for files (default: {})'.format(DEFAULT_DATA_DIR)
         )
 
     serve(parser.parse_args())

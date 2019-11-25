@@ -40,17 +40,29 @@ class LoggerStatus:
         self.process_object = p
 
 
+def valid_file(path):
+    return os.path.exists(path) and os.path.isfile(path)
+
+
 class LoggerRegistryManager:
 
-    def __init__(self):
+    def __init__(self, directory):
+        if directory is None:
+            raise ValueError()
+        self.data_dir = directory
         self.global_lock = Lock()
         self.registry = {}
         self.shutting_down = False
 
-    def submit_file(self, file_path, page_log2_size, tree_log2_size):
+    def submit_file(self, filename, page_log2_size, tree_log2_size):
 
-        if not os.path.exists(file_path) or not os.path.isfile(file_path):
-            raise FilePathException("The submit file path: {} is not valid".format(file_path))
+        basename = os.path.basename(filename)
+        if not basename:
+            raise FilePathException("The submit filename is not valid: {}".format(filename))
+
+        file_path = os.path.join(self.data_dir, basename)
+        if not valid_file(file_path):
+            raise FilePathException("The submit file was not found on path: {}".format(file_path))
 
         (is_ready, err_msg, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
@@ -75,7 +87,7 @@ class LoggerRegistryManager:
 
     def register_action(self, action, key, page_log2_size, tree_log2_size):
 
-        result_path = "{}.{}".format(key, action)
+        result_path = os.path.join(self.data_dir, "{}.{}".format(key, action))
         err_msg = "Result is not yet ready for file: {}".format(result_path)
         # Acquiring global lock and releasing it when completed
         LOGGER.debug("Acquiring registry %s global lock", action)
@@ -86,7 +98,7 @@ class LoggerRegistryManager:
                 if self.registry[key].is_ready:
                     return (True, None, self.registry[key].result_path)
 
-                if os.path.exists(result_path) and os.path.isfile(result_path):
+                if valid_file(result_path):
                     self.registry[key].is_ready = True
                     return (True, None, result_path)
 
