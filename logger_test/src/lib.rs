@@ -45,58 +45,6 @@ use grpc::marshall::Marshaller;
 pub use logger_test::LoggerTest;
 pub use logger_interface::{cartesi_base, logger_high};
 pub use logger_service::{
-    Hash, FilePath,
+    DownloadFileRequest, SubmitFileRequest,
     LOGGER_SERVICE_NAME, LOGGER_METHOD_SUBMIT,
-    LOGGER_METHOD_DOWNLOAD};
-
-impl From<Vec<u8>>
-    for FilePath
-{
-    fn from(
-        response: Vec<u8>,
-    ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::FilePath> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
-        marshaller.read(bytes::Bytes::from(response)).unwrap().into()
-    }
-}
-
-impl From<Vec<u8>>
-    for Hash
-{
-    fn from(
-        response: Vec<u8>,
-    ) -> Self {
-        let marshaller: Box<dyn Marshaller<cartesi_base::Hash> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
-        marshaller.read(bytes::Bytes::from(response)).unwrap().into()
-    }
-}
-
-impl From<FilePath>
-    for Vec<u8>
-{
-    fn from(
-        request: FilePath,
-    ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::FilePath> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
-    
-        let mut req = logger_high::FilePath::new();
-        req.set_path(request.path);
-
-        marshaller.write(&req).unwrap()
-    }
-}
-
-impl From<Hash>
-    for Vec<u8>
-{
-    fn from(
-        request: Hash,
-    ) -> Self {
-        let marshaller: Box<dyn Marshaller<cartesi_base::Hash> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
-    
-        let mut req = cartesi_base::Hash::new();
-        req.set_content(request.hash.to_vec());
-
-        marshaller.write(&req).unwrap()
-    }
-}
+    LOGGER_METHOD_DOWNLOAD, Hash, FilePath};
