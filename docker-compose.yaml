@@ -34,7 +34,7 @@ services:
     build: .
     volumes:
       - truffle_data:/opt/cartesi/share/blockchain
-      - logger_data:/opt/cartesi/srv/logger-server
+      - ./test:/opt/cartesi/srv/logger-server
       - key_data:/opt/cartesi/etc/keys
     ports:
       - 50051:50051
@@ -46,7 +46,6 @@ services:
 volumes:
   ganache_data:
   truffle_data:
-  logger_data:
   key_data:
 
 networks:
