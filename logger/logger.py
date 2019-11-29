@@ -71,6 +71,8 @@ class Logger:
         self.__page_size = 2**self.__page_log_2_size
         self.__tree_size = 2**self.__tree_log_2_size
         self.__download_cache = {}
+        self.__submission_blob_cache = {}
+        self.__submission_index_cache = {}
 
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
@@ -137,8 +139,13 @@ class Logger:
         for b in self.__bytes_from_file(filename):
             data.append(b)
             if(len(data) == self.__page_size):
-                (index, root) = self.submit_data_to_logger(data)
-                indices.append(index)
+                cached_index = self.__submission_blob_cache.get(tuple(data))
+                if cached_index is not None:
+                    indices.append(cached_index)
+                else:
+                    (index, root) = self.submit_data_to_logger(data)
+                    indices.append(index)
+                    self.__submission_blob_cache[tuple(data)] = index
                 data = []
                 count -= 1
 
@@ -165,8 +172,13 @@ class Logger:
                 partial_indices = []
                 partial_indices.append(indices.pop(0))
                 partial_indices.append(indices.pop(0))
-                (index, root) = self.submit_indices_to_logger(index_log2_size, partial_indices)
-                new_indices.append(index)
+                cached_index = self.__submission_index_cache.get(tuple(partial_indices))
+                if cached_index is not None:
+                    new_indices.append(cached_index)
+                else:
+                    (index, root) = self.submit_indices_to_logger(index_log2_size, partial_indices)
+                    new_indices.append(index)
+                    self.__submission_index_cache[tuple(partial_indices)] = index
             indices = new_indices
             index_log2_size += 1
 
