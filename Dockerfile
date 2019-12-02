@@ -29,6 +29,7 @@ FROM python:3.7.5-alpine3.10
 
 ENV BASE /opt/cartesi
 ENV LOGGER_PATH $BASE/share/logger-server
+ENV TIMEOUT 120s
 
 # install dockerize, as we need to wait on the contract
 # address to be extracted
@@ -55,7 +56,4 @@ COPY ./logger-entrypoint.sh $BASE/bin/logger-entrypoint.sh
 
 EXPOSE 50051
 
-CMD dockerize \
-    -wait file://$BASE/share/blockchain/contracts/deploy_done -timeout 120s \
-    -wait file://$BASE/etc/keys/keys_done -timeout 120s \
-    $BASE/bin/logger-entrypoint.sh
+ENTRYPOINT $BASE/bin/logger-entrypoint.sh

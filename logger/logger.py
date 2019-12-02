@@ -12,14 +12,23 @@
 import sys
 import os
 import sha3
+from cobra_hdwallet import HDWallet
 
+hdWallet = HDWallet()
 
 class Logger:
 
     def __init__(self, w3, logger_address, logger_abi):
         self.__w3 = w3
-        self.__key = bytes.fromhex(os.environ.get("CARTESI_CONCERN_KEY"))
-        self.__user = self.__w3.toChecksumAddress(os.environ.get("CARTESI_CONCERN_ADDRESS"))
+
+        if "MNEMONIC" in os.environ:
+            wallet = hdWallet.create_hdwallet(os.environ.get("MNEMONIC"), '')
+            self.__key = bytes.fromhex(wallet['private_key'])
+            self.__user = w3.toChecksumAddress(wallet['address'])
+        else:
+            self.__key = bytes.fromhex(os.environ.get("CARTESI_CONCERN_KEY"))
+            self.__user = w3.toChecksumAddress(os.environ.get("CARTESI_CONCERN_ADDRESS"))
+
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
         self.__bytes_of_word = 8
         self.__debug = False
