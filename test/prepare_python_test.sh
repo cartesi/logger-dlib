@@ -17,7 +17,7 @@ passphrase=<passphrase of the key store>
 account=`web3 account extract --keyfile "$keyfile" --password "$passphrase"`
 
 address=`echo $account | grep address | cut -d ' ' -f 3`
-key=`echo $account | grep key | cut -d ' ' -f 3`
+key=`echo $account | grep key | cut -d ' ' -f 3 | cut -c 3-`
 export CARTESI_CONCERN_ADDRESS=$address
 export CARTESI_CONCERN_KEY=$key
 
