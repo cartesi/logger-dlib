@@ -30,8 +30,10 @@ use super::ethabi::Token;
 use super::ethereum_types::{Address, H256, U256};
 use super::transaction;
 use super::transaction::TransactionRequest;
-use super::{FilePath, Hash, DownloadFileRequest, SubmitFileRequest,
-    LOGGER_METHOD_DOWNLOAD, LOGGER_METHOD_SUBMIT, LOGGER_SERVICE_NAME};
+use super::{
+    DownloadFileRequest, FilePath, Hash, SubmitFileRequest, LOGGER_METHOD_DOWNLOAD,
+    LOGGER_METHOD_SUBMIT, LOGGER_SERVICE_NAME,
+};
 
 pub struct LoggerTest();
 
@@ -65,7 +67,12 @@ impl From<LoggerTestCtxParsed> for LoggerTestCtx {
 
 impl DApp<()> for LoggerTest {
     /// React to the logger test contract, Idle/Waiting/Finished
-    fn react(instance: &state::Instance, archive: &Archive, _: &()) -> Result<Reaction> {
+    fn react(
+        instance: &state::Instance,
+        archive: &Archive,
+        _post_payload: &Option<String>,
+        _: &(),
+    ) -> Result<Reaction> {
         // get context (state) of the logger test instance
         let parsed: LoggerTestCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
@@ -109,23 +116,26 @@ impl DApp<()> for LoggerTest {
                 let path = "../test/test_file".to_string();
 
                 trace!("Submitting file: {}...", path);
-                
+
                 let request = SubmitFileRequest {
                     path: path.clone(),
                     page_log2_size: 3,
-                    tree_log2_size: 5
+                    tree_log2_size: 5,
                 };
 
-                let processed_response: Hash = archive.get_response(
-                    LOGGER_SERVICE_NAME.to_string(),
-                    path.clone(),
-                    LOGGER_METHOD_SUBMIT.to_string(),
-                    request.into())?
+                let processed_response: Hash = archive
+                    .get_response(
+                        LOGGER_SERVICE_NAME.to_string(),
+                        path.clone(),
+                        LOGGER_METHOD_SUBMIT.to_string(),
+                        request.into(),
+                    )?
                     .map_err(move |_e| {
                         Error::from(ErrorKind::ArchiveInvalidError(
                             LOGGER_SERVICE_NAME.to_string(),
                             path,
-                            LOGGER_METHOD_SUBMIT.to_string()))
+                            LOGGER_METHOD_SUBMIT.to_string(),
+                        ))
                     })?
                     .into();
 
@@ -152,19 +162,22 @@ impl DApp<()> for LoggerTest {
                     root: hash.clone(),
                     path: "../test/recovered_file".to_string(),
                     page_log2_size: 7,
-                    tree_log2_size: 17
+                    tree_log2_size: 17,
                 };
 
-                let processed_response: FilePath = archive.get_response(
-                    LOGGER_SERVICE_NAME.to_string(),
-                    format!("{:x}", hash.clone()),
-                    LOGGER_METHOD_DOWNLOAD.to_string(),
-                    request.into())?
+                let processed_response: FilePath = archive
+                    .get_response(
+                        LOGGER_SERVICE_NAME.to_string(),
+                        format!("{:x}", hash.clone()),
+                        LOGGER_METHOD_DOWNLOAD.to_string(),
+                        request.into(),
+                    )?
                     .map_err(|_| {
                         Error::from(ErrorKind::ArchiveInvalidError(
                             LOGGER_SERVICE_NAME.to_string(),
                             format!("{:x}", hash.clone()),
-                            LOGGER_METHOD_DOWNLOAD.to_string()))
+                            LOGGER_METHOD_DOWNLOAD.to_string(),
+                        ))
                     })?
                     .into();
                 trace!("Downloaded! File stored at: {}...", processed_response.path);
@@ -186,13 +199,12 @@ impl DApp<()> for LoggerTest {
             }
         };
     }
-    
+
     fn get_pretty_instance(
         instance: &state::Instance,
         _archive: &Archive,
         _: &(),
     ) -> Result<state::Instance> {
-        
         // get context (state) of the logger test instance
         let parsed: LoggerTestCtxParsed =
             serde_json::from_str(&instance.json_data).chain_err(|| {
@@ -204,7 +216,7 @@ impl DApp<()> for LoggerTest {
         let ctx: LoggerTestCtx = parsed.into();
         let json_data = serde_json::to_string(&ctx).unwrap();
 
-        let pretty_sub_instances : Vec<Box<state::Instance>> = vec![];
+        let pretty_sub_instances: Vec<Box<state::Instance>> = vec![];
 
         let pretty_instance = state::Instance {
             name: "LoggerTest".to_string(),
@@ -214,6 +226,6 @@ impl DApp<()> for LoggerTest {
             sub_instances: pretty_sub_instances,
         };
 
-        return Ok(pretty_instance)
+        return Ok(pretty_instance);
     }
 }
