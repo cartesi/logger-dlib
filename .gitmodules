@@ -1,5 +1,5 @@
-[submodule "lib/grpc-interfaces"]
-	path = lib/grpc-interfaces
+[submodule "grpc-interfaces"]
+	path = grpc-interfaces
 	url = ../grpc-interfaces.git
 [submodule "dispatcher"]
 	path = dispatcher

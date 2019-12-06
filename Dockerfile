@@ -13,7 +13,7 @@ RUN GRPC_PYTHON_BUILD_EXT_COMPILER_JOBS=$(nproc) pip3 install --user -r requirem
 
 # Generating grpc-interfaces python files
 # ----------------------------------------------------
-COPY ./lib/grpc-interfaces /root/grpc-interfaces
+COPY ./grpc-interfaces /root/grpc-interfaces
 RUN \
     mkdir -p /root/grpc-interfaces/out \
     && cd /root/grpc-interfaces \

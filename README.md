@@ -2,7 +2,7 @@
 
 Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the migration script is written in Javascript (with the help of [Truffle](https://github.com/trufflesuite/truffle)), and the testing scripts are written in Python.
 
-The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/lib/grpc-interfaces/`. A grpc server and test client are implemented in Python in the project root directory: `manager_server.py`, `test_client.py`. 
+The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the project root directory: `manager_server.py`, `test_client.py`. 
 
 ## On-chain Logger
 (contracts directory)
