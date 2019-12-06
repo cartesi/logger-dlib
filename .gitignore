@@ -9,6 +9,9 @@ node_modules
 /server/proto
 /logger_test/target
 /logger_service/target
+/logger_interface/target
+/logger_interface/src/*.rs
+!/logger_interface/src/lib.rs
 build
 .venv
 .vscode

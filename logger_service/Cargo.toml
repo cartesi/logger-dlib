@@ -8,5 +8,5 @@ authors = ["Cartesi Team"]
 [dependencies]
 bytes = "0.4.12"
 ethereum-types = "0.4"
-logger_interface = { path = "../lib/grpc-interfaces/logger_interface" }
+logger_interface = { path = "../logger_interface" }
 grpc = { git = "https://github.com/cartesi/grpc-rust", branch = "make_marshall_public" }
