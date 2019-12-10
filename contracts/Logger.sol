@@ -31,6 +31,7 @@ contract Logger is Decorated, LoggerInterface {
     }
 
     mapping(bytes32 => bool) logSubmitted;
+    mapping(bytes32 => uint256) logIndex;
     DataEntry[] dataHistory;
 
     uint256 public currentIndex = 0;
@@ -75,8 +76,9 @@ contract Logger is Decorated, LoggerInterface {
             _data,
             root,
             _log2Size);
-        ++currentIndex;
         logSubmitted[root] = true;
+        logIndex[root] = currentIndex;
+        ++currentIndex;
         return root;
     }
 
@@ -105,14 +107,21 @@ contract Logger is Decorated, LoggerInterface {
             _indices,
             root,
             log2Size + _log2Size);
-        ++currentIndex;
         logSubmitted[root] = true;
+        logIndex[root] = currentIndex;
+        ++currentIndex;
         return root;
     }
 
     /// @notice Getter function to check if log has been submitted for the given hash
-    // @param _indices The array of indices of the history
+    // @param _root The hash value to check in the logger history
     function isLogAvailable(bytes32 _root) public view returns(bool) {
         return logSubmitted[_root];
+    }
+
+    /// @notice Getter function to get the index in the history for the given hash
+    // @param _root The hash value to check in the logger history
+    function getLogIndex(bytes32 _root) public view returns(uint256) {
+        return logIndex[_root];
     }
 }
