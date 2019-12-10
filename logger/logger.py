@@ -25,8 +25,8 @@ class Logger:
         self.__debug = False
 
     def instantiate(self, page_log2_size, tree_log2_size):
-        self.__page_log_2_size = page_log2_size
-        self.__tree_log_2_size = tree_log2_size
+        self.__page_log_2_size = page_log2_size - 3
+        self.__tree_log_2_size = tree_log2_size - 3
         self.__page_size = 2**self.__page_log_2_size
         self.__tree_size = 2**self.__tree_log_2_size
         self.__download_cache = {}

@@ -30,8 +30,8 @@ deployed_address = logger_data['networks'][networkId]['address']
 print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
 test_logger = Logger(w3, deployed_address, logger_data['abi'])
-page_log2_size = 2
-tree_log2_size = 5
+page_log2_size = 5
+tree_log2_size = 8
 test_logger.instantiate(page_log2_size, tree_log2_size)
 
 # test case 1
@@ -69,7 +69,7 @@ indices.append(index_2)
 indices.append(index_1)
 indices.append(index_2)
 
-(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
+(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
 
 assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
 print("Test case 3 passed!")
@@ -84,7 +84,7 @@ test_logger.download_file(root, output_file)
 assert filecmp.cmp(input_file, output_file), "Files not match"
 print("Test case 4 passed!")
 
-page_log2_size = 3
+page_log2_size = 6
 test_logger.instantiate(page_log2_size, tree_log2_size)
 
 # test case 5
@@ -110,7 +110,7 @@ indices.append(index_3)
 indices.append(index_3)
 indices.append(index_3)
 
-(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
+(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
 
 assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
 print("Test case 6 passed!")
@@ -125,8 +125,8 @@ test_logger.download_file(root, output_file)
 assert filecmp.cmp(input_file, output_file), "Files not match"
 print("Test case 7 passed!")
 
-page_log2_size = 7
-tree_log2_size = 17
+page_log2_size = 10
+tree_log2_size = 20
 test_logger.instantiate(page_log2_size, tree_log2_size)
 
 # test case 8
@@ -185,8 +185,8 @@ root = test_logger.submit_file(input_file)
 assert root == bytes.fromhex("bff9861e078c0edaf8d7d0f164e6582d7926bc5e7c9248a95eb3d2a38bb7f0b5"), "Hashes not match"
 print("Test case 15 passed!")
 
-page_log2_size = 7
-tree_log2_size = 17
+page_log2_size = 10
+tree_log2_size = 20
 test_logger.instantiate(page_log2_size, tree_log2_size)
 
 root = bytes.fromhex("cd9665e5ea391d134dfbe45ca04a55ef8adf164dbc4c40ad31ae185f8f1af923")
