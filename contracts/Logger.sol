@@ -32,6 +32,7 @@ contract Logger is Decorated, LoggerInterface {
 
     mapping(bytes32 => bool) logSubmitted;
     mapping(bytes32 => uint256) logIndex;
+    mapping(uint256 => bytes32) logRoot;
     DataEntry[] dataHistory;
 
     uint256 public currentIndex = 0;
@@ -78,6 +79,7 @@ contract Logger is Decorated, LoggerInterface {
             _log2Size);
         logSubmitted[root] = true;
         logIndex[root] = currentIndex;
+        logRoot[currentIndex] = root;
         ++currentIndex;
         return root;
     }
@@ -109,6 +111,7 @@ contract Logger is Decorated, LoggerInterface {
             log2Size + _log2Size);
         logSubmitted[root] = true;
         logIndex[root] = currentIndex;
+        logRoot[currentIndex] = root;
         ++currentIndex;
         return root;
     }
@@ -123,5 +126,12 @@ contract Logger is Decorated, LoggerInterface {
     // @param _root The hash value to check in the logger history
     function getLogIndex(bytes32 _root) public view returns(uint256) {
         return logIndex[_root];
+    }
+
+    /// @notice Getter function to get the root in the history for the given index
+    // @param _index The index value to check in the logger history
+    function getLogRoot(uint256 _index) public view returns(bytes32) {
+        require(_index < currentIndex, "The index doesn't exist in the history");
+        return logRoot[_index];
     }
 }
