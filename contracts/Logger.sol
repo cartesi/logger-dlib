@@ -48,7 +48,7 @@ contract Logger is Decorated, LoggerInterface {
 
         // uint64 log2Size = Merkle.getLog2Floor(_data.length);
         bytes8[] memory data = _data;
-        uint256 power2Length = 2 ** (_log2Size);
+        uint256 power2Length = uint64(2) ** (_log2Size);
 
         // if (!Merkle.isPowerOf2(_data.length)) {
         if (_data.length != power2Length) {
