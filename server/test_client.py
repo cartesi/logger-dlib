@@ -59,7 +59,7 @@ def run():
                 # Submit
                 print("\n\nSUBMIT TESTS\n\n")
 
-                request = logger_high_pb2.SubmitFileRequest(path="../test/test_file", page_log2_size=5, tree_log2_size=5)
+                request = logger_high_pb2.SubmitFileRequest(path="../test/test_file", page_log2_size=8, tree_log2_size=8)
                 print("Asking to submit a new file")
                 print("Server response:\n{}".format(stub_high.SubmitFile(request).content.hex()))
             elif mode == "download":
@@ -67,7 +67,7 @@ def run():
                 print("\n\nDOWNLOAD TESTS\n\n")
 
                 root = cartesi_base_pb2.Hash(content=bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"))
-                request = logger_high_pb2.DownloadFileRequest(path="../test/recovered_file", root=root, page_log2_size=5, tree_log2_size=8)
+                request = logger_high_pb2.DownloadFileRequest(path="../test/recovered_file", root=root, page_log2_size=8, tree_log2_size=11)
                 print("Asking to download a new file")
                 print("Server response:\n{}".format(stub_high.DownloadFile(request).path))
             else:
