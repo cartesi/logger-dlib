@@ -22,7 +22,9 @@ class Logger:
         self.__w3 = w3
 
         if "MNEMONIC" in os.environ:
-            wallet = hdWallet.create_hdwallet(os.environ.get("MNEMONIC"), '')
+            wallet = hdWallet.create_hdwallet(os.environ.get("MNEMONIC"),
+                '',
+                int(os.getenv("ACCOUNT_INDEX", default="0")))
             self.__key = bytes.fromhex(wallet['private_key'])
             self.__user = w3.toChecksumAddress(wallet['address'])
         else:

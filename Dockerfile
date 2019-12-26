@@ -51,6 +51,7 @@ RUN mkdir -p $BASE/bin $BASE/share $BASE/etc/keys $BASE/srv/logger-server/ $LOGG
 COPY --from=build-image /root/grpc-interfaces/out/*.py $LOGGER_PATH/proto/
 COPY ./server/*.py $LOGGER_PATH/
 COPY ./logger/ $BASE/share/logger
+COPY ./cobra_hdwallet/ $BASE/share/cobra_hdwallet
 COPY ./logger-server $BASE/bin/logger-server
 COPY ./logger-entrypoint.sh $BASE/bin/logger-entrypoint.sh
 

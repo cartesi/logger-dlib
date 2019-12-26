@@ -2,7 +2,7 @@
 
 SCRIPTPATH="$( cd "$(dirname "$0")" ; pwd -P )"
 LOGGER_DIR=${LOGGER_PATH:-${SCRIPTPATH}/server}
-export PYTHONPATH=${LOGGER_DIR}/proto:${LOGGER_DIR}/../logger
+export PYTHONPATH=${LOGGER_DIR}/proto:${LOGGER_DIR}/..
 
 if [[ -z "${MNEMONIC}" ]]; then
     if [[ -z "${CARTESI_CONCERN_KEY}" ]] || [[ -z "${CARTESI_CONCERN_ADDRESS}" ]]; then
