@@ -110,7 +110,7 @@ class LoggerRegistryManager:
                 self.registry.pop(key)
                 return (False, "Fail to process file: {}, code: {}".format(result_path, process_terminated), None)
 
-            args = ["python3", "simple_logger.py", "-a", action, "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size)]
+            args = ["python3", "simple_logger.py", "-a", action, "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size), "-d", self.data_dir]
             LOGGER.info("Issuing: %s ...", args)
             p = subprocess.Popen(args)
             self.registry[key] = LoggerStatus(result_path, p)

@@ -76,13 +76,16 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             LOGGER.info("Download file with root hash: %s", root)
 
             path = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
-            new_path = request.path
+            new_path = os.path.join(self.logger_registry_manager.data_dir, request.path)
 
             # move the file if is first time download
             if os.path.exists(path) and os.path.isfile(path):
                 shutil.move(path, new_path)
 
-            return logger_high_pb2.FilePath(path=new_path)
+            if os.path.exists(new_path) and os.path.isfile(new_path):
+                return logger_high_pb2.FilePath(path=new_path)
+
+            raise FileNotFoundError("Downloaded file doesn't exist: {}".format(new_path))
 
         except (HashException, NotReadyException) as e:
             LOGGER.exception(e)

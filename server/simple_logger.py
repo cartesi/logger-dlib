@@ -9,11 +9,14 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import os
 import json
 import argparse
 from web3.auto import w3
 
 from logger import Logger
+
+DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Adding argument parser
 description = "A simple script to interact with Logger contract"
@@ -45,6 +48,12 @@ parser.add_argument(
     required=True,
     help='The tree log2 size of the Logger'
     )
+parser.add_argument(
+    '--data_dir', '-d',
+    dest='data_directory',
+    default=DEFAULT_DATA_DIR,
+    help='Data directory for files (default: {})'.format(DEFAULT_DATA_DIR)
+    )
 
 # Getting arguments
 args = parser.parse_args()
@@ -62,14 +71,16 @@ test_logger = Logger(w3, deployed_address, logger_abi)
 # change this to automatic way
 test_logger.instantiate(args.blob_log2_size, args.tree_log2_size)
 
+path = os.path.join(args.data_directory, "{}.{}".format(args.param, args.action))
+
 if args.action == "download":
 
-    test_logger.download_file(bytes.fromhex(args.param), args.param + ".download")
+    test_logger.download_file(bytes.fromhex(args.param), path)
 
 elif args.action == "submit":
 
     root = test_logger.submit_file(args.param)
-    with open(args.param + ".submit", "w") as f:
+    with open(path, "w") as f:
         f.write(root.hex())
 else:
     assert False, "No action given"
