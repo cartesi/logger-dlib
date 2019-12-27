@@ -58,14 +58,14 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             return cartesi_base_pb2.Hash(content=bytes.fromhex(root))
 
         except (FilePathException, NotReadyException) as e:
-            LOGGER.exception(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            raise e
         # Generic error catch
         except Exception as e:
-            LOGGER.exception("An exception occurred")
             context.set_details('An exception with message "{}" was raised!'.format(e))
             context.set_code(grpc.StatusCode.UNKNOWN)
+            raise e
 
     def DownloadFile(self, request, context):
         try:
@@ -88,14 +88,14 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             raise FileNotFoundError("Downloaded file doesn't exist: {}".format(new_path))
 
         except (HashException, NotReadyException) as e:
-            LOGGER.exception(e)
             context.set_details("{}".format(e))
             context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            raise e
         # Generic error catch
         except Exception as e:
-            LOGGER.exception("An exception occurred")
             context.set_details('An exception with message "{}" was raised!'.format(e))
             context.set_code(grpc.StatusCode.UNKNOWN)
+            raise e
 
 
 def configure_log():
