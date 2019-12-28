@@ -4,7 +4,7 @@ base58==0.2.2
 certifi==2019.11.28
 chardet==3.0.4
 cytoolz==0.10.1
-ecdsa==0.13
+ecdsa==0.13.3
 eth-abi==2.1.0
 eth-account==0.4.0
 eth-hash==0.2.0
