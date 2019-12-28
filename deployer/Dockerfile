@@ -37,5 +37,5 @@ ENV ETHEREUM_TIMEOUT "10s"
 CMD dockerize \
     -wait tcp://${ETHEREUM_HOST}:${ETHEREUM_PORT} \
     -timeout ${ETHEREUM_TIMEOUT} \
-    node_modules/.bin/truffle migrate \
+    node_modules/.bin/truffle migrate --network ganache \
     && touch build/contracts/deploy_done
