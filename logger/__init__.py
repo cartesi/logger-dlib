@@ -122,22 +122,24 @@ class Logger:
         
         return (False, 0)
 
-    def __send_txn_to_logger(self, txn):
+    def __send_txn_to_logger(self, txn, isData):
         signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
         tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)
         tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
         if tx_receipt['status'] == 0:
             raise ValueError(tx_receipt['transactionHash'].hex())
-        merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber'])
+        merkle_filter = None
+        if isData:
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber'])
+        else:
+            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber'])
         merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
         merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
-        merkle_indices = merkle_filter.get_all_entries()[0]['args']['_indices']
         merkle_index = merkle_filter.get_all_entries()[0]['args']['_index']
 
         if(self.__debug):
             print("root is: " + merkle_root.hex())
             print("log2 is: " + str(merkle_log2))
-            print("indices is: " + str(merkle_indices))
             print("index in the history is: " + str(merkle_index))
 
         return (merkle_index, merkle_root)
@@ -159,7 +161,7 @@ class Logger:
             # submit data if is the first time
             nonce = self.__w3.eth.getTransactionCount(self.__user)
             txn = self.__logger.functions.calculateMerkleRootFromHistory(log2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
-            return self.__send_txn_to_logger(txn)
+            return self.__send_txn_to_logger(txn, False)
 
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
@@ -186,8 +188,8 @@ class Logger:
             # submit data if is the first time
             nonce = self.__w3.eth.getTransactionCount(self.__user)
             txn = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).buildTransaction({"nonce": nonce, "from": self.__user})
-            return self.__send_txn_to_logger(txn)
-            
+            return self.__send_txn_to_logger(txn, True)
+
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
 
