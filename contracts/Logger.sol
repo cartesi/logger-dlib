@@ -118,8 +118,11 @@ contract Logger is Decorated, LoggerInterface {
 
     /// @notice Getter function to check if log has been submitted for the given hash
     // @param _root The hash value to check in the logger history
-    function isLogAvailable(bytes32 _root) public view returns(bool) {
-        return logSubmitted[_root];
+    function isLogAvailable(bytes32 _root, uint64 _log2Size) public view returns(bool) {
+        if (logSubmitted[_root]) {
+            return ((dataHistory[logIndex[_root]].log2Size + 3) == _log2Size);
+        }
+        return false;
     }
 
     /// @notice Getter function to get the index in the history for the given hash

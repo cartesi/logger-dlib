@@ -26,6 +26,7 @@
 /// @title Interface for logger test instantiator
 pragma solidity ^0.5.0;
 
+
 contract LoggerInterface {
-    function isLogAvailable(bytes32 _root) public view returns(bool);
+    function isLogAvailable(bytes32 _root, uint64 _log2Size) public view returns(bool);
 }
