@@ -12,6 +12,7 @@
 import sys
 import os
 import sha3
+import math
 from cobra_hdwallet import HDWallet
 
 hdWallet = HDWallet()
@@ -111,10 +112,10 @@ class Logger:
 
         return hashes[0]
 
-    def __get_index_from_root(self, root):
+    def __get_index_from_root(self, root, log2_size):
 
         # check if submission exists in the history
-        if self.__logger.functions.isLogAvailable(root).call():
+        if self.__logger.functions.isLogAvailable(root, int(log2_size)).call():
             index = self.__logger.functions.getLogIndex(root).call()
             if(self.__debug):
                 print("find root %s in history %d" % (root.hex(), index))
@@ -154,7 +155,7 @@ class Logger:
 
             root = self.__calculate_root_from_hashes(hashes)
 
-            (exists, index) = self.__get_index_from_root(root)
+            (exists, index) = self.__get_index_from_root(root, log2_size + 3 + math.log2(len(indices)))
             if exists:
                 return (index, root)
 
@@ -181,7 +182,7 @@ class Logger:
 
             root = self.__calculate_root_from_hashes(hashes)
 
-            (exists, index) = self.__get_index_from_root(root)
+            (exists, index) = self.__get_index_from_root(root, self.__page_log_2_size + 3)
             if exists:
                 return (index, root)
 
