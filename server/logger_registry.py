@@ -46,10 +46,11 @@ def valid_file(path):
 
 class LoggerRegistryManager:
 
-    def __init__(self, directory):
+    def __init__(self, directory, contract_path):
         if directory is None:
             raise ValueError()
         self.data_dir = directory
+        self.contract_path = contract_path
         self.global_lock = Lock()
         self.registry = {}
         self.shutting_down = False
@@ -110,7 +111,7 @@ class LoggerRegistryManager:
                 self.registry.pop(key)
                 return (False, "Fail to process file: {}, code: {}".format(result_path, process_terminated), None)
 
-            args = ["python3", "simple_logger.py", "-a", action, "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size), "-d", self.data_dir]
+            args = ["python3", "simple_logger.py", "-a", action, "-p", key, "-b", str(page_log2_size), "-t", str(tree_log2_size), "-d", self.data_dir, "-c", self.contract_path]
             LOGGER.info("Issuing: %s ...", args)
             p = subprocess.Popen(args)
             self.registry[key] = LoggerStatus(result_path, p)

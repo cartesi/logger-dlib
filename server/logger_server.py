@@ -25,8 +25,8 @@ import logger_high_pb2_grpc
 import logger_high_pb2
 import cartesi_base_pb2
 from logger_registry import LoggerRegistryManager, FilePathException, HashException, NotReadyException
+from logger import DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
-DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
 SLEEP_TIME = 5
@@ -130,7 +130,8 @@ def serve(arguments):
 
     data_dir = check_data_directory(arguments.data_directory)
 
-    logger_registry_manager = LoggerRegistryManager(data_dir)
+    # TODO: include a validation for the contract file
+    logger_registry_manager = LoggerRegistryManager(data_dir, arguments.contract_path)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager), server)
 
@@ -181,5 +182,11 @@ if __name__ == '__main__':
         default=DEFAULT_DATA_DIR,
         help='Data directory for files (default: {})'.format(DEFAULT_DATA_DIR)
         )
+    parser.add_argument(
+        '--contract_path', '-c',
+        dest='contract_path',
+        default=DEFAULT_CONTRACT_PATH,
+        help='Path for contract json file in truffle format (default: {})'.format(DEFAULT_CONTRACT_PATH)
+    )
 
     serve(parser.parse_args())

@@ -57,4 +57,4 @@ COPY ./logger-entrypoint.sh $BASE/bin/logger-entrypoint.sh
 
 EXPOSE 50051
 
-ENTRYPOINT $BASE/bin/logger-entrypoint.sh
+ENTRYPOINT [ "/opt/cartesi/bin/logger-entrypoint.sh", "-a", "0.0.0.0", "-d", "/opt/cartesi/srv/logger-server" ]

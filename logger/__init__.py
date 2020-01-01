@@ -15,6 +15,9 @@ import sha3
 import math
 from cobra_hdwallet import HDWallet
 
+DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_CONTRACT_PATH = '/opt/cartesi/share/blockchain/contracts/Logger.json'
+
 hdWallet = HDWallet()
 
 class Logger:

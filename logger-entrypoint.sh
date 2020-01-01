@@ -18,7 +18,9 @@ if [[ -f "/opt/cartesi/etc/keys/account" ]]; then
 fi
 
 # wait for deployment
-dockerize -wait file://$BASE/share/blockchain/contracts/deploy_done -timeout ${TIMEOUT}
+if [[ -z "${NETWORK_ID}" ]]; then
+    dockerize -wait file://$BASE/share/blockchain/deploy_done -timeout ${TIMEOUT}
+fi
 
 # run server
-/opt/cartesi/bin/logger-server -a 0.0.0.0 -d /opt/cartesi/srv/logger-server
+/opt/cartesi/bin/logger-server $@

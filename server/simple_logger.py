@@ -14,9 +14,7 @@ import json
 import argparse
 from web3.auto import w3
 
-from logger import Logger
-
-DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+from logger import Logger, DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
 # Adding argument parser
 description = "A simple script to interact with Logger contract"
@@ -54,14 +52,17 @@ parser.add_argument(
     default=DEFAULT_DATA_DIR,
     help='Data directory for files (default: {})'.format(DEFAULT_DATA_DIR)
     )
+parser.add_argument(
+    '--contract_path', '-c',
+    dest='contract_path',
+    default=DEFAULT_CONTRACT_PATH,
+    help='Path for contract json file in truffle format (default: {})'.format(DEFAULT_CONTRACT_PATH)
+)
 
 # Getting arguments
 args = parser.parse_args()
 
-fname = '../blockchain/contracts/Logger.json'
-# ## XXX: for local testing uncomment below. we should make this a configuration (arg) ###
-# fname = '../build/contracts/Logger.json'
-with open(fname) as json_file:
+with open(args.contract_path) as json_file:
     logger_data = json.load(json_file)
     logger_abi = logger_data['abi']
     networkId = w3.net.version
