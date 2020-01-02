@@ -1,3 +1,14 @@
+FROM node:12-alpine as onchain
+
+ENV BASE /opt/cartesi
+WORKDIR $BASE/share/blockchain
+
+ARG NPM_TOKEN
+ARG LOGGER_TAG=latest
+
+RUN echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+RUN yarn add @cartesi/logger@${LOGGER_TAG} --no-lockfile
+
 FROM python:3.7.5-alpine3.10 as build-image
 ENV BASE /opt/cartesi
 
@@ -41,6 +52,9 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 WORKDIR $BASE
+
+# copy onchain code
+COPY --from=onchain $BASE/share/blockchain $BASE/share/blockchain
 
 # Copy python packages and make sure scripts in .local are usable:
 COPY --from=build-image /root/.local /root/.local

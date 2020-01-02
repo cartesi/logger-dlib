@@ -1,31 +1,30 @@
 name: Docker
-on:
-  push:
-    branches:
-      - develop
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-18.04
+    env:
+      TAG: latest
     steps:
       - uses: actions/checkout@v1
         with:
           submodules: recursive
           token: ${{ secrets.CI_TOKEN }}
 
+      - run: echo "::set-env name=TAG::${GITHUB_REF:11}"
+        if: startsWith(github.ref, 'refs/tags/v')
+  
       - name: Docker Login
         run: echo $DOCKER_PASSWORD | docker login --username $DOCKER_USERNAME --password-stdin
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build Logger Deployer
-        run: |
-          docker build . -t cartesi/logger-blockchain-deployer -f deployer/Dockerfile --build-arg NPM_TOKEN=${NPM_TOKEN}
-          docker push cartesi/logger-blockchain-deployer
+      - name: Build Logger Server
+        run: docker build . -t cartesi/logger-server:${TAG} --build-arg NPM_TOKEN=${NPM_TOKEN} --build-arg LOGGER_TAG=${TAG}
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Build Logger Server
-        run: |
-          docker build . -t cartesi/logger-server
-          docker push cartesi/logger-server
+      - name: Publish Logger Server
+        run: docker push cartesi/logger-server:${TAG}
+        if: github.ref == 'refs/branches/develop' || startsWith(github.ref, 'refs/tags/v')
