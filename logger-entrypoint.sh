@@ -19,7 +19,7 @@ fi
 
 # wait for deployment
 if [[ -z "${NETWORK_ID}" ]]; then
-    dockerize -wait file://$BASE/share/blockchain/deploy_done -timeout ${TIMEOUT}
+    dockerize -wait file://$BASE/share/blockchain/contracts/deploy_done -timeout ${TIMEOUT}
 fi
 
 # run server
