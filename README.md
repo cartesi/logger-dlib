@@ -1,8 +1,8 @@
-# Logger D-Lib
+# Logger DLib
 
-Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the migration script is written in Javascript (with the help of [Truffle](https://github.com/trufflesuite/truffle)), and the testing scripts are written in Python.
+Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone the ability to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the migration script is written in Javascript (with the help of [Truffle](https://github.com/trufflesuite/truffle)), and the testing scripts are written in Python.
 
-The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the project root directory: `manager_server.py`, `test_client.py`. 
+The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the project root directory: `logger-server`, `logger-tests`.
 
 ## On-chain Logger
 (contracts directory)
@@ -23,7 +23,7 @@ The Off-chain Logger python module implements a class and multiple functions tha
 
 Run the following command to execute tests against the Logger contract
 ```shell
-python test_logger.py
+% ./logger-tests
 ```
 
 ### Examples
@@ -119,15 +119,15 @@ stephen@laptop:~/git/logger-dlib$ _
 
 To start the server listening on localhost and port 50051, just execute it:
 ```console
-$ python manager_server.py
+$ ./logger-server
 ```
 
 The server has a couple of options to customize it's behavior, you can check them using the -h option:
 ```console
-$ python manager_server.py -h
-usage: manager_server.py [-h] [--address ADDRESS] [--port PORT]
-                         [--blockchain-address BLOCKCHAIN_ADDRESS]
-                         [--blockchain-port BLOCKCHAIN_PORT]
+$ ./logger-server -h
+usage: logger_server.py [-h] [--address ADDRESS] [--port PORT]
+                        [--data_dir DATA_DIRECTORY]
+                        [--contract_path CONTRACT_PATH]
 
 Instantiates a logger manager server, responsible for managing and interacting
 with logger contract
@@ -137,24 +137,28 @@ optional arguments:
   --address ADDRESS, -a ADDRESS
                         Address to listen (default: localhost)
   --port PORT, -p PORT  Port to listen (default: 50051)
-  --blockchain-address BLOCKCHAIN_ADDRESS, -ba BLOCKCHAIN_ADDRESS
-                        Address of blockchain (default: 127.0.0.1)
-  --blockchain-port BLOCKCHAIN_PORT, -bp BLOCKCHAIN_PORT
-                        Port of blockchain (default: 8545)
+  --data_dir DATA_DIRECTORY, -d DATA_DIRECTORY
+                        Data directory for files (default:
+                        /Users/tuler/Documents/workspace/cartesi/logger-
+                        dlib/logger)
+  --contract_path CONTRACT_PATH, -c CONTRACT_PATH
+                        Path for contract json file in truffle format
+                        (default:
+                        /opt/cartesi/share/blockchain/contracts/Logger.json)
 ```
 
 ### Executing the test client
 
 Once you have the logger manager server up and running, you may want to test it is working correctly using the included test client, if the server is running natively and locally all you have to do is execute it with no additional arguments:
 ```console
-$ python test_client.py
+$ ./logger-tests
 ```
 
 *Note that the client only sends grpc request once, and by design the server will always return a grpc error indicating the data is not yet ready for the first file submission or download. The task will be executed in background and server caches the result when the it's ready. Try execute the test_client multiple times and one should eventually get the result*
 
 The test client also has a couple of options to customize it's behavior, you may check them with the -h or --help option:
 ```console
-$ python test_client.py -h
+$ ./logger-tests -h
 Starting at Wed Sep 25 19:09:10 2019
 usage: test_client.py [-h] [--address ADDRESS] [--port PORT] [--container]
                       [--mode MODE]
