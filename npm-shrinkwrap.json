@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/logger",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0",
   "lockfileVersion": 1,
   "requires": true,
   "dependencies": {
@@ -9728,9 +9728,9 @@
       "dev": true
     },
     "truffle": {
-      "version": "5.1.6",
-      "resolved": "https://registry.npmjs.org/truffle/-/truffle-5.1.6.tgz",
-      "integrity": "sha512-blTpn76f/XC0MFcSGrlJJLEZgV+q5LCSeXzS5R2fzSHWuSuv+I4Zg5dAdIHd4XDqxfLLEMKA7bBcEIAklxKw7w==",
+      "version": "5.1.8",
+      "resolved": "https://registry.npmjs.org/truffle/-/truffle-5.1.8.tgz",
+      "integrity": "sha512-/r2ul1mtoNO2obGZmfQX3kjTPQdWRfIjW4sm5x35VJVxsdPif5WZXsDluPAlcbqJcqP6vwLZNmWoZHMLUE5Y8w==",
       "dev": true,
       "requires": {
         "app-module-path": "^2.2.0",
