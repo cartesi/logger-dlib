@@ -28,8 +28,9 @@ use super::ethereum_types::{Address, H256, U256};
 use super::transaction;
 use super::transaction::TransactionRequest;
 use super::{
-    DownloadFileRequest, FilePath, Hash, SubmitFileRequest, LOGGER_METHOD_DOWNLOAD,
-    LOGGER_METHOD_SUBMIT, LOGGER_SERVICE_NAME,
+    DownloadFileRequest, SubmitFileRequest,
+    DownloadFileResponse, SubmitFileResponse,
+    LOGGER_METHOD_DOWNLOAD, LOGGER_METHOD_SUBMIT, LOGGER_SERVICE_NAME,
 };
 
 pub struct LoggerTest();
@@ -116,27 +117,36 @@ impl DApp<()> for LoggerTest {
 
                 let request = SubmitFileRequest {
                     path: path.clone(),
-                    page_log2_size: 3,
-                    tree_log2_size: 5,
+                    page_log2_size: 10,
+                    tree_log2_size: 20,
                 };
 
-                let processed_response: Hash = archive
+                let processed_response: SubmitFileResponse = archive
                     .get_response(
                         LOGGER_SERVICE_NAME.to_string(),
                         path.clone(),
                         LOGGER_METHOD_SUBMIT.to_string(),
-                        request.into(),
+                        request.clone().into(),
                     )?
-                    .map_err(move |_e| {
+                    .map_err(|_| {
                         Error::from(ErrorKind::ArchiveInvalidError(
                             LOGGER_SERVICE_NAME.to_string(),
-                            path,
+                            path.clone(),
                             LOGGER_METHOD_SUBMIT.to_string(),
                         ))
                     })?
                     .into();
 
-                trace!("Submitted! Result: {:?}...", processed_response.hash);
+                if processed_response.status != 0 {
+                    return Err(Error::from(ErrorKind::ArchiveMissError(
+                        LOGGER_SERVICE_NAME.to_string(),
+                        path.clone(),
+                        LOGGER_METHOD_SUBMIT.to_string(),
+                        request.into()
+                    )));
+                }
+
+                trace!("Submitted! Result: {:?}...", processed_response.root);
 
                 // claim Downloading in logger test contract
                 let request = TransactionRequest {
@@ -145,7 +155,7 @@ impl DApp<()> for LoggerTest {
                     function: "claimDownloading".into(),
                     data: vec![
                         Token::Uint(instance.index),
-                        Token::FixedBytes(processed_response.hash.to_vec()),
+                        Token::FixedBytes(processed_response.root.to_vec()),
                     ],
                     strategy: transaction::Strategy::Simplest,
                 };
@@ -158,16 +168,16 @@ impl DApp<()> for LoggerTest {
                 let request = DownloadFileRequest {
                     root: hash.clone(),
                     path: "../test/recovered_file".to_string(),
-                    page_log2_size: 7,
-                    tree_log2_size: 17,
+                    page_log2_size: 10,
+                    tree_log2_size: 20,
                 };
 
-                let processed_response: FilePath = archive
+                let processed_response: DownloadFileResponse = archive
                     .get_response(
                         LOGGER_SERVICE_NAME.to_string(),
                         format!("{:x}", hash.clone()),
                         LOGGER_METHOD_DOWNLOAD.to_string(),
-                        request.into(),
+                        request.clone().into(),
                     )?
                     .map_err(|_| {
                         Error::from(ErrorKind::ArchiveInvalidError(
@@ -177,6 +187,16 @@ impl DApp<()> for LoggerTest {
                         ))
                     })?
                     .into();
+
+                    if processed_response.status != 0 {
+                        return Err(Error::from(ErrorKind::ArchiveMissError(
+                            LOGGER_SERVICE_NAME.to_string(),
+                            format!("{:x}", hash.clone()),
+                            LOGGER_METHOD_DOWNLOAD.to_string(),
+                            request.into()
+                        )));
+                    }
+
                 trace!("Downloaded! File stored at: {}...", processed_response.path);
 
                 // TODO: compare the original file and downloaded file

@@ -37,5 +37,6 @@ extern crate transaction;
 pub use logger_test::LoggerTest;
 pub use logger_service::{
     DownloadFileRequest, SubmitFileRequest,
+    DownloadFileResponse, SubmitFileResponse,
     LOGGER_SERVICE_NAME, LOGGER_METHOD_SUBMIT,
-    LOGGER_METHOD_DOWNLOAD, Hash, FilePath};
+    LOGGER_METHOD_DOWNLOAD};
