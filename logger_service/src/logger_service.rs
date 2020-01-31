@@ -1,7 +1,4 @@
-// Dispatcher provides the infrastructure to support the development of DApps,
-// mediating the communication between on-chain and off-chain components. 
-
-// Copyright (C) 2019 Cartesi Pte. Ltd.
+// Copyright (C) 2020 Cartesi Pte. Ltd.
 
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
@@ -21,7 +18,6 @@
 // under the Apache License, version 2, or a compatible permissive license, and can
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
-
 
 
 //! A collection of types that represent the manager grpc interface
