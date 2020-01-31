@@ -30,5 +30,6 @@ extern crate logger_interface;
 pub use logger_interface::{cartesi_base, logger_high};
 pub use logger_service::{
     DownloadFileRequest, SubmitFileRequest,
+    DownloadFileResponse, SubmitFileResponse,
     LOGGER_SERVICE_NAME, LOGGER_METHOD_SUBMIT,
-    LOGGER_METHOD_DOWNLOAD, Hash, FilePath};
+    LOGGER_METHOD_DOWNLOAD};
