@@ -32,7 +32,7 @@ import grpc
 import logger_high_pb2_grpc
 import logger_high_pb2
 import cartesi_base_pb2
-from logger_registry import LoggerRegistryManager, FilePathException, HashException, NotReadyException
+from logger_registry import LoggerRegistryManager
 from logger import DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
 LISTENING_ADDRESS = 'localhost'
@@ -41,6 +41,10 @@ SLEEP_TIME = 5
 
 LOGGER = logging.getLogger(__name__)
 
+# status: 0 -> finished successfully
+#         1 -> working on it, not ready yet
+#         2 -> invalid argument
+#         3 -> service not available, shutting down   
 
 class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
 
@@ -57,18 +61,14 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
     def SubmitFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return cartesi_base_pb2.Hash()
+                return logger_high_pb2.SubmitFileResponse(status=3)
 
             file_path = request.path
             LOGGER.info("Submit file with path: %s", file_path)
 
-            root = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
-            return cartesi_base_pb2.Hash(content=bytes.fromhex(root))
+            (root, status, progress) = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
+            return logger_high_pb2.SubmitFileResponse(root=cartesi_base_pb2.Hash(content=bytes.fromhex(root)), status=status, progress=progress)
 
-        except (FilePathException, NotReadyException) as e:
-            context.set_details("{}".format(e))
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            raise e
         # Generic error catch
         except Exception as e:
             context.set_details('An exception with message "{}" was raised!'.format(e))
@@ -78,12 +78,12 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
     def DownloadFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return logger_high_pb2.FilePath()
+                return logger_high_pb2.DownloadFileResponse(status=3)
 
             root = request.root.content.hex()
             LOGGER.info("Download file with root hash: %s", root)
 
-            path = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
+            (path, status, progress) = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
             new_path = os.path.join(self.logger_registry_manager.data_dir, request.path)
 
             # move the file if is first time download
@@ -91,14 +91,10 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
                 shutil.move(path, new_path)
 
             if os.path.exists(new_path) and os.path.isfile(new_path):
-                return logger_high_pb2.FilePath(path=new_path)
+                return logger_high_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress)
 
-            raise FileNotFoundError("Downloaded file doesn't exist: {}".format(new_path))
+            return logger_high_pb2.DownloadFileResponse(path=path, status=status, progress=progress)
 
-        except (HashException, NotReadyException) as e:
-            context.set_details("{}".format(e))
-            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-            raise e
         # Generic error catch
         except Exception as e:
             context.set_details('An exception with message "{}" was raised!'.format(e))

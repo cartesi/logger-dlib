@@ -27,18 +27,6 @@ import os
 LOGGER = logging.getLogger(__name__)
 
 
-class HashException(Exception):
-    pass
-
-
-class FilePathException(Exception):
-    pass
-
-
-class NotReadyException(Exception):
-    pass
-
-
 class LoggerStatus:
 
     def __init__(self, result_path, p):
@@ -67,28 +55,33 @@ class LoggerRegistryManager:
 
         basename = os.path.basename(filename)
         if not basename:
-            raise FilePathException("The submit filename is not valid: {}".format(filename))
+            # root, status, progress
+            return ("00", 2, 0)
 
         file_path = os.path.join(self.data_dir, basename)
         if not valid_file(file_path):
-            raise FilePathException("The submit file was not found on path: {}".format(file_path))
+            # root, status, progress
+            return ("00", 2, 0)
 
         (is_ready, err_msg, result_path) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            raise NotReadyException(err_msg)
+            # root, status, progress
+            return ("00", 1, 0)
 
         with open(result_path, "r") as f:
-            return f.readline()
+            # root, status, progress
+            return (f.readline(), 0, 100)
 
     def download_file(self, root, page_log2_size, tree_log2_size):
 
         (is_ready, err_msg, result_path) = self.register_action("download", root, page_log2_size, tree_log2_size)
 
         if not is_ready:
-            raise NotReadyException(err_msg)
+            # path, status, progress
+            return ("", 1, 0)
 
-        return result_path
+        return (result_path, 0, 100)
 
     """
     Here starts the "internal" API, use the methods bellow taking the right precautions such as holding a lock
