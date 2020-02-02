@@ -2,7 +2,7 @@
 
 Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone the ability to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the migration script is written in Javascript (with the help of [Truffle](https://github.com/trufflesuite/truffle)), and the testing scripts are written in Python.
 
-The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the project root directory: `logger-server`, `logger-tests`.
+The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the `server` directory: `logger_server.py`, `test_client.py`.
 
 ## On-chain Logger
 (contracts directory)
@@ -29,9 +29,10 @@ Run the following command to execute tests against the Logger contract
 ### Examples
 
 ```python
-w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545", request_kwargs={'timeout': 60}))
-test_logger = Logger(w3, deployed_address["logger_address"], logger_data['abi'])
-test_logger.instantiate(2, 5)
+test_logger = Logger(w3, deployed_address, logger_data['abi'])
+page_log2_size = 5
+tree_log2_size = 8
+test_logger.instantiate(page_log2_size, tree_log2_size)
 ```
 The above codes first create an object of the Logger class with the blockchain endpoint, logger contract address and the abi definition of the contract. Then call the instantiate function with `page_log2_size` and the `tree_log2_size` to prepare the data structure for later usage.
 
@@ -51,9 +52,9 @@ indices = []
 indices.append(index_1)
 indices.append(index_1)
 
-(index, root) = test_logger.submit_indices_to_logger(indices)
+(index, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
 ```
-The above codes call the `submit_indices_to_logger` with a list of indices. The indices are the merkle trees that has been created in advance and been stored in the contract history. Index and merkle tree root hash will be returned in a tuple.
+The above codes call the `submit_indices_to_logger` with a list of indices. The indices are the merkle trees that has been created in advance and been stored in the contract history. Index and merkle tree root hash will be returned in a tuple. The `-3` of the `page_log2_size` is because the blob unit being used by off-chain module is `byte`, while the blob unit being used by the on-chain contract is `word`. User don't have to worry about this minor implementation detail as the most use case will simply be the `submit_file` and `download_file` (described below).
 
 ```python
 input_file = "test_file"
@@ -147,18 +148,27 @@ optional arguments:
                         /opt/cartesi/share/blockchain/contracts/Logger.json)
 ```
 
+*Note that in order to run the server natively, one needs to specify the --contract_path and --data_dir arguments, pointing to the local paths repectively. It's also required to generate the python code for the grpc interfaces from the proto files. Refer to the section in the Dockerfile*
+
 ### Executing the test client
 
 Once you have the logger manager server up and running, you may want to test it is working correctly using the included test client, if the server is running natively and locally all you have to do is execute it with no additional arguments:
 ```console
-$ ./logger-tests
+$ ./test-client
 ```
 
-*Note that the client only sends grpc request once, and by design the server will always return a grpc error indicating the data is not yet ready for the first file submission or download. The task will be executed in background and server caches the result when the it's ready. Try execute the test_client multiple times and one should eventually get the result*
+After the client sends grpc request for the first time, the task will be executed in the background. The server will cache the result when the request is completed, and respond when the client asks again in the future. The server responds with a structure consisting of the status of the job and other data. Only when the status is `0`, job finished successfully, all other data in the structure become meaningful, Try execute the test_client multiple times and one should eventually get the result.
+
+```
+# status: 0 -> finished successfully
+#         1 -> working on it, not ready yet
+#         2 -> invalid argument
+#         3 -> service not available, shutting down
+```
 
 The test client also has a couple of options to customize it's behavior, you may check them with the -h or --help option:
 ```console
-$ ./logger-tests -h
+$ ./test-client -h
 Starting at Wed Sep 25 19:09:10 2019
 usage: test_client.py [-h] [--address ADDRESS] [--port PORT] [--container]
                       [--mode MODE]
