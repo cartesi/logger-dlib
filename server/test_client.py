@@ -69,9 +69,10 @@ def run():
 
                 request = logger_high_pb2.SubmitFileRequest(path="test_file", page_log2_size=10, tree_log2_size=20)
                 print("Asking to submit a new file")
-                print("Server response root:\n{}".format(stub_high.SubmitFile(request).root.content.hex()))
-                print("Server response status:\n{}".format(stub_high.SubmitFile(request).status))
-                print("Server response progress:\n{}".format(stub_high.SubmitFile(request).progress))
+                response = stub_high.SubmitFile(request)
+                print("Server response root:\n{}".format(response.root.content.hex()))
+                print("Server response status:\n{}".format(response.status))
+                print("Server response progress:\n{}".format(response.progress))
             elif mode == "download":
                 # Download
                 print("\n\nDOWNLOAD TESTS\n\n")
@@ -79,9 +80,10 @@ def run():
                 root = cartesi_base_pb2.Hash(content=bytes.fromhex("9a8d49468b9592705f608525928c3e53771c176da25f84f78dec7433a3416bea"))
                 request = logger_high_pb2.DownloadFileRequest(path="recovered_file", root=root, page_log2_size=10, tree_log2_size=20)
                 print("Asking to download a new file")
-                print("Server response path:\n{}".format(stub_high.DownloadFile(request).path))
-                print("Server response status:\n{}".format(stub_high.DownloadFile(request).status))
-                print("Server response progress:\n{}".format(stub_high.DownloadFile(request).progress))
+                response = stub_high.DownloadFile(request)
+                print("Server response path:\n{}".format(response.path))
+                print("Server response status:\n{}".format(response.status))
+                print("Server response progress:\n{}".format(response.progress))
             else:
                 raise Exception("Unknown mode")
 

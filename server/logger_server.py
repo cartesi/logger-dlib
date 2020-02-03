@@ -88,7 +88,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
 
             # move the file if is first time download
             if os.path.exists(path) and os.path.isfile(path):
-                shutil.move(path, new_path)
+                shutil.copy(path, new_path)
 
             if os.path.exists(new_path) and os.path.isfile(new_path):
                 return logger_high_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress)

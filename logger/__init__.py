@@ -63,6 +63,8 @@ class Logger:
         self.__submission_blob_cache = {}
         # map {indices} tuple to {index}
         self.__submission_index_cache = {}
+        self.__download_progress = 0
+        self.__submission_progress = 0
 
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
@@ -81,6 +83,7 @@ class Logger:
 
         try:
             cached_data = self.__download_cache.get(root)
+            self.__download_progress += 1
             if cached_data is not None:
                 return (True, cached_data)
 
@@ -158,6 +161,12 @@ class Logger:
 
         return (merkle_index, merkle_root)
 
+    def get_download_progress(self):
+        return self.__download_progress
+
+    def get_submission_progress(self):
+        return self.__submission_progress
+
     def submit_indices_to_logger(self, log2_size, indices):
 
         try:
@@ -225,6 +234,7 @@ class Logger:
                     self.__submission_blob_cache[tuple(data)] = index
                 data = []
                 count -= 1
+        self.__submission_progress = 50
 
         if(len(data) != 0):
             (index, root) = self.submit_data_to_logger(data)
