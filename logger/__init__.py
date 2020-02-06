@@ -65,6 +65,15 @@ class Logger:
         self.__submission_index_cache = {}
         self.__download_progress = 0
         self.__submission_progress = 0
+        
+        self.__total_pages = 2**(self.__tree_log_2_size - self.__page_log_2_size)
+        self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
+        self.__progress_per_page = 1/self.__total_pages * 100
+        self.__total_nodes = self.__total_pages * 2 - 1
+        self.__progress_per_node = 1/self.__total_nodes * 100
+        self.__total_pairs = self.__total_pages - 1
+        self.__progress_per_pair = 1/self.__total_pairs * 100
+        self.__recover_count = 0
 
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
@@ -79,17 +88,22 @@ class Logger:
                 else:
                     break
 
+    def __update_download_progress(self):
+        self.__recover_count += 1
+        self.__download_progress = int(self.__recover_count * self.__progress_per_node)
+
     def __recover_data_from_root(self, root):
 
         try:
             cached_data = self.__download_cache.get(root)
-            self.__download_progress += 1
             if cached_data is not None:
+                self.__update_download_progress()
                 return (True, cached_data)
 
             merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root})
 
             if(not len(merkle_filter.get_all_entries()) == 0):
+                self.__update_download_progress()
                 return (True, merkle_filter.get_all_entries()[0]['args']['_data'])
 
             data = []
@@ -107,6 +121,7 @@ class Logger:
                     data += data_at_index
 
                 self.__download_cache[root] = data
+                self.__update_download_progress()
                 return (True, data)
             return (False, [])
 
@@ -221,7 +236,7 @@ class Logger:
         data = []
         indices = []
         root = bytes(32)
-        count = 2**(self.__tree_log_2_size - self.__page_log_2_size)
+        count = self.__total_pages
         for b in self.__bytes_from_file(filename):
             data.append(b)
             if(len(data) == self.__page_size):
@@ -234,12 +249,14 @@ class Logger:
                     self.__submission_blob_cache[tuple(data)] = index
                 data = []
                 count -= 1
-        self.__submission_progress = 50
+                
+                self.__submission_progress = int(self.__progress_per_page/2 * (self.__total_pages - count))
 
         if(len(data) != 0):
             (index, root) = self.submit_data_to_logger(data)
             indices.append(index)
             count -= 1
+            self.__submission_progress = int(self.__progress_per_page/2 * (self.__total_pages - count))
 
         data = []
         data.append(bytes(self.__bytes_of_word))
@@ -249,8 +266,12 @@ class Logger:
             while(count > 0):
                 indices.append(index)
                 count -= 1
+                self.__submission_progress = int(self.__progress_per_page/2 * (self.__total_pages - count))
+
+        self.__submission_progress = 50
 
         index_log2_size = self.__page_log_2_size
+        count = 0
         while(len(indices) > 1):
             new_indices = []
             for x in range(int(len(indices) / 2)):
@@ -264,6 +285,9 @@ class Logger:
                     (index, root) = self.submit_indices_to_logger(index_log2_size, partial_indices)
                     new_indices.append(index)
                     self.__submission_index_cache[tuple(partial_indices)] = index
+
+                count += 1
+                self.__submission_progress = 50 + int(count * self.__progress_per_pair/2)
             indices = new_indices
             index_log2_size += 1
 
