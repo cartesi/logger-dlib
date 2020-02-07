@@ -53,7 +53,8 @@ pub struct DownloadFileRequest {
 pub struct SubmitFileResponse {
     pub root: H256,
     pub status: u32,
-    pub progress: u32
+    pub progress: u32,
+    pub description: String
 }
 
 /// Representation of a response for downloading a log file
@@ -61,7 +62,8 @@ pub struct SubmitFileResponse {
 pub struct DownloadFileResponse {
     pub path: String,
     pub status: u32,
-    pub progress: u32
+    pub progress: u32,
+    pub description: String
 }
 
 impl From<logger_high::SubmitFileResponse>
@@ -76,7 +78,8 @@ impl From<logger_high::SubmitFileResponse>
                 .expect("root hash not found")
                 .content),
             status: result.status,
-            progress: result.progress
+            progress: result.progress,
+            description: result.description
         }
     }
 }
@@ -90,7 +93,8 @@ impl From<logger_high::DownloadFileResponse>
         DownloadFileResponse {
             path: result.path,
             status: result.status,
-            progress: result.progress
+            progress: result.progress,
+            description: result.description
         }
     }
 }

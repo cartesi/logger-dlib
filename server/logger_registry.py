@@ -61,32 +61,32 @@ class LoggerRegistryManager:
         basename = os.path.basename(filename)
         if not basename:
             # root, status, progress
-            return ("00", 2, 0)
+            return ("00", 2, 0, "Base name not found")
 
         file_path = os.path.join(self.data_dir, basename)
         if not valid_file(file_path):
             # root, status, progress
-            return ("00", 2, 0)
+            return ("00", 2, 0, "Invalid file path error")
 
-        (is_ready, err_msg, result_path, progress) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
+        (is_ready, result_path, progress) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
             # root, status, progress
-            return ("00", 1, progress)
+            return ("00", 1, progress, "Submission in progress")
 
         with open(result_path, "r") as f:
             # root, status, progress
-            return (f.readline(), 0, progress)
+            return (f.readline(), 0, progress, "Submission done")
 
     def download_file(self, root, page_log2_size, tree_log2_size):
 
-        (is_ready, err_msg, result_path, progress) = self.register_action("download", root, page_log2_size, tree_log2_size)
+        (is_ready, result_path, progress) = self.register_action("download", root, page_log2_size, tree_log2_size)
 
         if not is_ready:
             # path, status, progress
-            return ("", 1, progress)
+            return ("", 1, progress, "Download in progress")
 
-        return (result_path, 0, progress)
+        return (result_path, 0, progress, "Download done")
 
     """
     Here starts the "internal" API, use the methods bellow taking the right precautions such as holding a lock
@@ -95,7 +95,6 @@ class LoggerRegistryManager:
     def register_action(self, action, key, page_log2_size, tree_log2_size):
 
         result_path = os.path.join(self.data_dir, "{}.{}".format(key, action))
-        err_msg = "Result is not yet ready for file: {}".format(result_path)
         # Acquiring global lock and releasing it when completed
         LOGGER.debug("Acquiring registry %s global lock", action)
         with self.global_lock:
@@ -110,10 +109,10 @@ class LoggerRegistryManager:
 
                     self.registry[key].job = None
                     self.registry[key].logger_if = None
-                    return (True, None, result_path, 100)
+                    return (True, result_path, 100)
 
                 if valid_file(result_path):
-                    return (True, None, result_path, 100)
+                    return (True, result_path, 100)
 
                 progress = 0
                 if action == "submit":
@@ -121,7 +120,7 @@ class LoggerRegistryManager:
                 else:
                     progress = self.registry[key].logger_if.get_download_progress()
                 
-                return (False, None, result_path, progress)
+                return (False, result_path, progress)
 
             with open(self.contract_path) as json_file:
                 logger_data = json.load(json_file)
@@ -139,7 +138,7 @@ class LoggerRegistryManager:
                 job = self.executor.submit(logger_if.submit_file, os.path.join(self.data_dir, key))
 
             self.registry[key] = LoggerStatus(result_path, logger_if, job)
-            return (False, err_msg, result_path, 0)
+            return (False, result_path, 0)
 
 
         

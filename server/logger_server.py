@@ -66,8 +66,8 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             file_path = request.path
             LOGGER.info("Submit file with path: %s", file_path)
 
-            (root, status, progress) = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
-            return logger_high_pb2.SubmitFileResponse(root=cartesi_base_pb2.Hash(content=bytes.fromhex(root)), status=status, progress=progress)
+            (root, status, progress, description) = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
+            return logger_high_pb2.SubmitFileResponse(root=cartesi_base_pb2.Hash(content=bytes.fromhex(root)), status=status, progress=progress, description=description)
 
         # Generic error catch
         except Exception as e:
@@ -83,7 +83,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
             root = request.root.content.hex()
             LOGGER.info("Download file with root hash: %s", root)
 
-            (path, status, progress) = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
+            (path, status, progress, description) = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
             new_path = os.path.join(self.logger_registry_manager.data_dir, request.path)
 
             # move the file if is first time download
@@ -91,7 +91,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
                 shutil.copy(path, new_path)
 
             if os.path.exists(new_path) and os.path.isfile(new_path):
-                return logger_high_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress)
+                return logger_high_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress, description=description)
 
             return logger_high_pb2.DownloadFileResponse(path=path, status=status, progress=progress)
 
