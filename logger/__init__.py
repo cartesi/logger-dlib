@@ -197,7 +197,8 @@ class Logger:
                 return (index, root)
 
             # submit data if is the first time
-            txn = self.__logger.functions.calculateMerkleRootFromHistory(log2_size, indices).buildTransaction({"from": self.__user})
+            nonce = self.__w3.eth.getTransactionCount(self.__user)
+            txn = self.__logger.functions.calculateMerkleRootFromHistory(log2_size, indices).buildTransaction({"nonce": nonce, "from": self.__user})
             return self.__send_txn_to_logger(txn, False)
 
         except ValueError as e:
@@ -223,7 +224,8 @@ class Logger:
                 return (index, root)
 
             # submit data if is the first time
-            txn = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).buildTransaction({"from": self.__user})
+            nonce = self.__w3.eth.getTransactionCount(self.__user)
+            txn = self.__logger.functions.calculateMerkleRootFromData(self.__page_log_2_size, data).buildTransaction({"nonce": nonce, "from": self.__user})
             return self.__send_txn_to_logger(txn, True)
 
         except ValueError as e:
