@@ -12,17 +12,17 @@ module.exports = {
     development: {
       host: "localhost",
       port: 8545,
-      network_id: "*", // Match any network id
+      network_id: "*" // Match any network id
     },
     ganache: {
       host: "ganache",
       port: 8545,
-      network_id: "*", // Match any network id
+      network_id: "*" // Match any network id
     },
     geth: {
       host: "geth",
       port: 8545,
-      network_id: "15", // Match any network id
+      network_id: 15
     },
     unittests: {
       host: "localhost",
@@ -32,10 +32,16 @@ module.exports = {
     ropsten: network('ropsten', 3),
     kovan: network('kovan', 42),
     rinkeby: network('rinkeby', 4),
+    matic_testnet: {
+      provider: () => new HDWalletProvider(mnemonic, 'https://testnetv3.matic.network'),
+      network_id: 15001
+    }
+  },
+  compilers: {
     solc: {
-     optimizer: { // Turning on compiler optimization that removes some local variables during compilation
-       enabled: true,
-       runs: 200
+      optimizer: { // Turning on compiler optimization that removes some local variables during compilation
+        enabled: true,
+        runs: 200
       }
     }
   }
