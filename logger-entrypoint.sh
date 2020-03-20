@@ -18,8 +18,8 @@ if [[ -f "/opt/cartesi/etc/keys/account" ]]; then
 fi
 
 # wait for deployment
-if [[ -z "${NETWORK_ID}" ]]; then
-    dockerize -wait file://$BASE/share/blockchain/deploy_done -timeout ${TIMEOUT}
+if [[ -n "${DEPLOYMENT_SEMAPHORE}" ]]; then
+    dockerize -wait ${DEPLOYMENT_SEMAPHORE} -timeout ${TIMEOUT}
 fi
 
 # run server
