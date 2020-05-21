@@ -50,8 +50,8 @@ class Logger:
         self.__debug = False
 
     def instantiate(self, page_log2_size, tree_log2_size):
-        self.__page_log_2_size = page_log2_size - 3
-        self.__tree_log_2_size = tree_log2_size - 3
+        self.__page_log_2_size = page_log2_size
+        self.__tree_log_2_size = tree_log2_size
         self.__page_size = 2**self.__page_log_2_size
         self.__tree_size = 2**self.__tree_log_2_size
         self.__download_cache = {}
@@ -192,7 +192,7 @@ class Logger:
 
             root = self.__calculate_root_from_hashes(hashes)
 
-            (exists, index) = self.__get_index_from_root(root, log2_size + 3 + math.log2(len(indices)))
+            (exists, index) = self.__get_index_from_root(root, log2_size + math.log2(len(indices)))
             if exists:
                 return (index, root)
 
@@ -210,16 +210,16 @@ class Logger:
             # calculate hash locally
             hashes = []
             padded_data = list(data)
-            for x in range(self.__page_size - len(data)):
+            for x in range(int(self.__page_size/self.__bytes_of_word) - len(data)):
                 padded_data.append(bytes(self.__bytes_of_word))
-            for x in range(self.__page_size):
+            for x in range(int(self.__page_size/self.__bytes_of_word) - 3):
                 k = sha3.keccak_256()
                 k.update(padded_data[x])
                 hashes.append(bytes.fromhex(k.hexdigest()))
 
             root = self.__calculate_root_from_hashes(hashes)
 
-            (exists, index) = self.__get_index_from_root(root, self.__page_log_2_size + 3)
+            (exists, index) = self.__get_index_from_root(root, self.__page_log_2_size)
             if exists:
                 return (index, root)
 
@@ -239,7 +239,7 @@ class Logger:
         count = self.__total_pages
         for b in self.__bytes_from_file(filename):
             data.append(b)
-            if(len(data) == self.__page_size):
+            if((len(data) * self.__bytes_of_word) == self.__page_size):
                 cached_index = self.__submission_blob_cache.get(tuple(data))
                 if cached_index is not None:
                     indices.append(cached_index)
@@ -301,8 +301,8 @@ class Logger:
         for b in data:
             bytes_count += len(b)
 
-        if 2**(self.__tree_log_2_size + 3) != bytes_count:
-            raise ValueError("Downloaded file({} bytes) doesn't match log2 size({})".format(bytes_count, self.__tree_log_2_size + 3))
+        if 2**(self.__tree_log_2_size) != bytes_count:
+            raise ValueError("Downloaded file({} bytes) doesn't match log2 size({})".format(bytes_count, self.__tree_log_2_size))
 
         if(succ):
             if(self.__debug):

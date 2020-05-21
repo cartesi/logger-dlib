@@ -79,12 +79,16 @@ indices.append(index_2)
 indices.append(index_1)
 indices.append(index_2)
 
-(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
+(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
 
 assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
 print("Test case 3 passed!")
 
 # test case 4
+page_log2_size = 10
+tree_log2_size = 20
+test_logger.instantiate(page_log2_size, tree_log2_size)
+
 input_file = "test_file"
 output_file = "recovered_file"
 
@@ -120,12 +124,16 @@ indices.append(index_3)
 indices.append(index_3)
 indices.append(index_3)
 
-(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
+(index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
 
 assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
 print("Test case 6 passed!")
 
 # test case 7
+page_log2_size = 8
+tree_log2_size = 20
+test_logger.instantiate(page_log2_size, tree_log2_size)
+
 input_file = "test_file"
 output_file = "recovered_file"
 

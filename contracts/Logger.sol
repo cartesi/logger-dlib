@@ -36,7 +36,6 @@ contract Logger is Decorated, LoggerInterface {
   // or combine the existing hashes in the history to a deeper tree
 
     struct DataEntry {
-        // TODO: change the type of log2Size based on the max log size(disk size) of the DApp
         uint64 log2Size;
         bytes32 root;
     }
@@ -55,11 +54,12 @@ contract Logger is Decorated, LoggerInterface {
     /// @notice Calculate the Merkle tree and return the root hash
     // @param _hashes The array of words of the file
     function calculateMerkleRootFromData(uint64 _log2Size, bytes8[] memory _data) public returns(bytes32) {
+        require(_log2Size >= 3, "Has to be at least one word");
+        require(_log2Size <= 64, "Cannot be bigger than the machine itself");
         require(_data.length > 0, "The input array cannot be empty");
 
-        // uint64 log2Size = Merkle.getLog2Floor(_data.length);
         bytes8[] memory data = _data;
-        uint256 power2Length = uint64(2) ** (_log2Size);
+        uint256 power2Length = uint64(2) ** (_log2Size - 3);
 
         // if (!Merkle.isPowerOf2(_data.length)) {
         if (_data.length != power2Length) {
@@ -131,7 +131,7 @@ contract Logger is Decorated, LoggerInterface {
     // @param _root The hash value to check in the logger history
     function isLogAvailable(bytes32 _root, uint64 _log2Size) public view returns(bool) {
         if (logSubmitted[_root]) {
-            return ((dataHistory[logIndex[_root]].log2Size + 3) == _log2Size);
+            return ((dataHistory[logIndex[_root]].log2Size) == _log2Size);
         }
         return false;
     }
