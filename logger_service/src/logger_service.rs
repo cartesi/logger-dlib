@@ -149,7 +149,7 @@ impl From<DownloadFileRequest>
         let mut req = logger_high::DownloadFileRequest::new();
         req.set_path(request.path);
         let mut root = cartesi_base::Hash::new();
-        root.set_content(request.root.to_vec());
+        root.set_content(request.root.to_fixed_bytes().to_vec());
         req.set_root(root);
         req.set_page_log2_size(request.page_log2_size);
         req.set_tree_log2_size(request.tree_log2_size);
