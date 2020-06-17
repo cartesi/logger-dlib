@@ -30,8 +30,7 @@ RUN \
     && cd /root/grpc-interfaces \
     && python3 -m grpc_tools.protoc -I. \
         --python_out=./out --grpc_python_out=./out \
-        core.proto cartesi-base.proto manager-low.proto \
-        manager-high.proto logger-high.proto
+        logger.proto
 
 
 # Container final image

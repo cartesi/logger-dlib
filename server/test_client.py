@@ -26,9 +26,8 @@ import datetime
 import argparse
 import grpc
 
-import cartesi_base_pb2
-import logger_high_pb2
-import logger_high_pb2_grpc
+import logger_pb2
+import logger_pb2_grpc
 
 SLEEP_TIME = 5
 DEFAULT_ADDRESS = 'localhost'
@@ -61,15 +60,15 @@ def run():
     conn_str = "{}:{}".format(srv_add, srv_port)
     print("Connecting to server in " + conn_str)
     with grpc.insecure_channel(conn_str) as channel:
-        stub_high = logger_high_pb2_grpc.LoggerManagerHighStub(channel)
+        stub = logger_pb2_grpc.LoggerStub(channel)
         try:
             if mode == "submit":
                 # Submit
                 print("\n\nSUBMIT TESTS\n\n")
 
-                request = logger_high_pb2.SubmitFileRequest(path="test_file", page_log2_size=10, tree_log2_size=20)
+                request = logger_pb2.SubmitFileRequest(path="test_file", page_log2_size=10, tree_log2_size=20)
                 print("Asking to submit a new file")
-                response = stub_high.SubmitFile(request)
+                response = stub.SubmitFile(request)
                 print("Server response root:\n{}".format(response.root.content.hex()))
                 print("Server response status:\n{}".format(response.status))
                 print("Server response progress:\n{}".format(response.progress))
@@ -77,10 +76,10 @@ def run():
                 # Download
                 print("\n\nDOWNLOAD TESTS\n\n")
 
-                root = cartesi_base_pb2.Hash(content=bytes.fromhex("9a8d49468b9592705f608525928c3e53771c176da25f84f78dec7433a3416bea"))
-                request = logger_high_pb2.DownloadFileRequest(path="recovered_file", root=root, page_log2_size=10, tree_log2_size=20)
+                root = logger_pb2.Hash(content=bytes.fromhex("9a8d49468b9592705f608525928c3e53771c176da25f84f78dec7433a3416bea"))
+                request = logger_pb2.DownloadFileRequest(path="recovered_file", root=root, page_log2_size=10, tree_log2_size=20)
                 print("Asking to download a new file")
-                response = stub_high.DownloadFile(request)
+                response = stub.DownloadFile(request)
                 print("Server response path:\n{}".format(response.path))
                 print("Server response status:\n{}".format(response.status))
                 print("Server response progress:\n{}".format(response.progress))

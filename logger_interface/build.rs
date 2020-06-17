@@ -25,7 +25,7 @@ fn main() {
     protoc_rust_grpc::run(protoc_rust_grpc::Args {
         out_dir: "src",
         includes: &["../grpc-interfaces"],
-        input: &["../grpc-interfaces/cartesi-base.proto", "../grpc-interfaces/logger-high.proto"],
+        input: &["../grpc-interfaces/logger.proto"],
         rust_protobuf: true, // generate protobuf messages, not just services
         ..Default::default()
     })

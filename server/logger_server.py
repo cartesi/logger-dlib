@@ -29,9 +29,8 @@ import logging.config
 import logging.handlers
 import grpc
 
-import logger_high_pb2_grpc
-import logger_high_pb2
-import cartesi_base_pb2
+import logger_pb2_grpc
+import logger_pb2
 from logger_registry import LoggerRegistryManager
 from logger import DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
@@ -46,7 +45,7 @@ LOGGER = logging.getLogger(__name__)
 #         2 -> invalid argument
 #         3 -> service not available, shutting down   
 
-class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
+class _Logger(logger_pb2_grpc.LoggerServicer):
 
     def __init__(self, logger_registry_manager):
         self.logger_registry_manager = logger_registry_manager
@@ -61,13 +60,13 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
     def SubmitFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return logger_high_pb2.SubmitFileResponse(status=3)
+                return logger_pb2.SubmitFileResponse(status=3)
 
             file_path = request.path
             LOGGER.info("Submit file with path: %s", file_path)
 
             (root, status, progress, description) = self.logger_registry_manager.submit_file(file_path, request.page_log2_size, request.tree_log2_size)
-            return logger_high_pb2.SubmitFileResponse(root=cartesi_base_pb2.Hash(content=bytes.fromhex(root)), status=status, progress=progress, description=description)
+            return logger_pb2.SubmitFileResponse(root=logger_pb2.Hash(content=bytes.fromhex(root)), status=status, progress=progress, description=description)
 
         # Generic error catch
         except Exception as e:
@@ -78,7 +77,7 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
     def DownloadFile(self, request, context):
         try:
             if self.ServerShuttingDown(context):
-                return logger_high_pb2.DownloadFileResponse(status=3)
+                return logger_pb2.DownloadFileResponse(status=3)
 
             root = request.root.content.hex()
             LOGGER.info("Download file with root hash: %s", root)
@@ -91,9 +90,9 @@ class _LoggerManagerHigh(logger_high_pb2_grpc.LoggerManagerHighServicer):
                 shutil.copy(path, new_path)
 
             if os.path.exists(new_path) and os.path.isfile(new_path):
-                return logger_high_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress, description=description)
+                return logger_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress, description=description)
 
-            return logger_high_pb2.DownloadFileResponse(path=path, status=status, progress=progress)
+            return logger_pb2.DownloadFileResponse(path=path, status=status, progress=progress)
 
         # Generic error catch
         except Exception as e:
@@ -137,7 +136,7 @@ def serve(arguments):
     # TODO: include a validation for the contract file
     logger_registry_manager = LoggerRegistryManager(data_dir, arguments.contract_path)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    logger_high_pb2_grpc.add_LoggerManagerHighServicer_to_server(_LoggerManagerHigh(logger_registry_manager), server)
+    logger_pb2_grpc.add_LoggerServicer_to_server(_Logger(logger_registry_manager), server)
 
     LOGGER.info("Starting Server at %s:%s", arguments.address, arguments.port)
     server.add_insecure_port('{}:{}'.format(arguments.address, arguments.port))

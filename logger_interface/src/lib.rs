@@ -22,6 +22,5 @@
 extern crate grpc;
 extern crate protobuf;
 
-pub mod cartesi_base;
-pub mod logger_high;
-pub mod logger_high_grpc;
+pub mod logger;
+pub mod logger_grpc;

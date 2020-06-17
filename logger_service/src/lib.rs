@@ -27,7 +27,7 @@ extern crate grpc;
 extern crate ethereum_types;
 extern crate logger_interface;
 
-pub use logger_interface::{cartesi_base, logger_high};
+pub use logger_interface::logger;
 pub use logger_service::{
     DownloadFileRequest, SubmitFileRequest,
     DownloadFileResponse, SubmitFileResponse,

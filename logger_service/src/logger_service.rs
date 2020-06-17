@@ -25,12 +25,12 @@
 //! generated types.
 
 use super::ethereum_types::H256;
-use super::{cartesi_base, logger_high};
+use super::logger;
 use super::grpc::marshall::Marshaller;
 
 pub const LOGGER_SERVICE_NAME: &'static str = "logger";
-pub const LOGGER_METHOD_SUBMIT: &'static str = "/LoggerManagerHigh.LoggerManagerHigh/SubmitFile";
-pub const LOGGER_METHOD_DOWNLOAD: &'static str = "/LoggerManagerHigh.LoggerManagerHigh/DownloadFile";
+pub const LOGGER_METHOD_SUBMIT: &'static str = "/CartesiLogger.Logger/SubmitFile";
+pub const LOGGER_METHOD_DOWNLOAD: &'static str = "/CartesiLogger.Logger/DownloadFile";
 
 /// Representation of a request for submitting a log file
 #[derive(Debug, Clone)]
@@ -66,11 +66,11 @@ pub struct DownloadFileResponse {
     pub description: String
 }
 
-impl From<logger_high::SubmitFileResponse>
+impl From<logger::SubmitFileResponse>
     for SubmitFileResponse
 {
     fn from(
-        result: logger_high::SubmitFileResponse,
+        result: logger::SubmitFileResponse,
     ) -> Self {
         SubmitFileResponse {
             root: H256::from_slice(&result.root
@@ -84,11 +84,11 @@ impl From<logger_high::SubmitFileResponse>
     }
 }
 
-impl From<logger_high::DownloadFileResponse>
+impl From<logger::DownloadFileResponse>
     for DownloadFileResponse
 {
     fn from(
-        result: logger_high::DownloadFileResponse,
+        result: logger::DownloadFileResponse,
     ) -> Self {
         DownloadFileResponse {
             path: result.path,
@@ -105,7 +105,7 @@ impl From<Vec<u8>>
     fn from(
         response: Vec<u8>,
     ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::DownloadFileResponse> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
+        let marshaller: Box<dyn Marshaller<logger::DownloadFileResponse> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
         marshaller.read(bytes::Bytes::from(response)).unwrap().into()
     }
 }
@@ -116,7 +116,7 @@ impl From<Vec<u8>>
     fn from(
         response: Vec<u8>,
     ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::SubmitFileResponse> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
+        let marshaller: Box<dyn Marshaller<logger::SubmitFileResponse> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
         marshaller.read(bytes::Bytes::from(response)).unwrap().into()
     }
 }
@@ -127,9 +127,9 @@ impl From<SubmitFileRequest>
     fn from(
         request: SubmitFileRequest,
     ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::SubmitFileRequest> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
+        let marshaller: Box<dyn Marshaller<logger::SubmitFileRequest> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
     
-        let mut req = logger_high::SubmitFileRequest::new();
+        let mut req = logger::SubmitFileRequest::new();
         req.set_path(request.path);
         req.set_page_log2_size(request.page_log2_size);
         req.set_tree_log2_size(request.tree_log2_size);
@@ -144,11 +144,11 @@ impl From<DownloadFileRequest>
     fn from(
         request: DownloadFileRequest,
     ) -> Self {
-        let marshaller: Box<dyn Marshaller<logger_high::DownloadFileRequest> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
+        let marshaller: Box<dyn Marshaller<logger::DownloadFileRequest> + Sync + Send> = Box::new(grpc::protobuf::MarshallerProtobuf);
     
-        let mut req = logger_high::DownloadFileRequest::new();
+        let mut req = logger::DownloadFileRequest::new();
         req.set_path(request.path);
-        let mut root = cartesi_base::Hash::new();
+        let mut root = logger::Hash::new();
         root.set_content(request.root.to_fixed_bytes().to_vec());
         req.set_root(root);
         req.set_page_log2_size(request.page_log2_size);
