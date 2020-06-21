@@ -53,7 +53,7 @@ pub struct DownloadFileRequest {
 pub struct SubmitFileResponse {
     pub root: H256,
     pub status: u32,
-    pub progress: u32,
+    pub progress: u64,
     pub description: String
 }
 
@@ -62,7 +62,7 @@ pub struct SubmitFileResponse {
 pub struct DownloadFileResponse {
     pub path: String,
     pub status: u32,
-    pub progress: u32,
+    pub progress: u64,
     pub description: String
 }
 
