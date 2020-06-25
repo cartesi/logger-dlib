@@ -14,7 +14,7 @@ The On-chain Logger contract provides a way for anyone to prove the relationship
 ## Off-chain Logger Module
 (logger directory)
 
-The Off-chain Logger python module implements a class and multiple functions that one can easily interact with the On-chain Logger contract. Including submitting data, zero-padding the data if size is not power of 2 and retrieve the original raw data simply with the merkle tree root hash later in the future. The details of usage please refer to the tests section.
+The Off-chain Logger python module implements a class and multiple functions that one can easily interact with the On-chain Logger contract. Including submitting data, zero-padding the data if size is not power of 2 and retrieve the original raw data simply with the merkle tree root hash later in the future. The module also checks the On-chain Logger if the desired data is already submitted to save unnecessary gas expenditure. The details of usage please refer to the tests section.
 
 ## Testing with the On-chain contract using Off-chain module (unit test)
 (test directory)
@@ -34,7 +34,7 @@ page_log2_size = 5
 tree_log2_size = 8
 test_logger.instantiate(page_log2_size, tree_log2_size)
 ```
-The above codes first create an object of the Logger class with the blockchain endpoint, logger contract address and the abi definition of the contract. Then call the instantiate function with `page_log2_size` and the `tree_log2_size` to prepare the data structure for later usage.
+The above codes first create an object of the Logger class with the blockchain endpoint, logger contract address and the abi definition of the contract. Then call the instantiate function with `page_log2_size` and the `tree_log2_size` to prepare the data structure for later usage. `page_log2_size` is the log2 value of the size of the leaf in the merkle tree in the unit of byte. `tree_log2_size` is the log2 value of the size of the entire merkle tree. Take above code example, the merkle tree is 256(2^8) bytes large, and the leaf is 32(2^5) bytes large.
 
 ```python
 data = []
@@ -52,9 +52,9 @@ indices = []
 indices.append(index_1)
 indices.append(index_1)
 
-(index, root) = test_logger.submit_indices_to_logger(page_log2_size - 3, indices)
+(index, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
 ```
-The above codes call the `submit_indices_to_logger` with a list of indices. The indices are the merkle trees that has been created in advance and been stored in the contract history. Index and merkle tree root hash will be returned in a tuple. The `-3` of the `page_log2_size` is because the blob unit being used by off-chain module is `byte`, while the blob unit being used by the on-chain contract is `word`. User don't have to worry about this minor implementation detail as the most use case will simply be the `submit_file` and `download_file` (described below).
+The above codes call the `submit_indices_to_logger` with a list of indices. The indices are the merkle trees that has been created in advance and been stored in the contract history. Index and merkle tree root hash will be returned in a tuple.
 
 ```python
 input_file = "test_file"
