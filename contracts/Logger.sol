@@ -61,7 +61,8 @@ contract Logger is Decorated, LoggerInterface {
         bytes8[] memory data = _data;
         uint256 power2Length = uint64(2) ** (_log2Size - 3);
 
-        // if (!Merkle.isPowerOf2(_data.length)) {
+        require(power2Length >= _data.length, "The input array is bigger than declared log2 size");
+
         if (_data.length != power2Length) {
             // pad the list to length of power of 2
             bytes8[] memory paddedData = new bytes8[](power2Length);
