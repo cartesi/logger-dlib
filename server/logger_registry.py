@@ -30,6 +30,7 @@ from web3.auto import w3
 from logger import Logger
 
 LOGGER = logging.getLogger(__name__)
+ZERO_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
 
 
 class LoggerStatus:
@@ -61,18 +62,18 @@ class LoggerRegistryManager:
         basename = os.path.basename(filename)
         if not basename:
             # root, status, progress
-            return ("00", 2, 0, "Base name not found")
+            return (ZERO_HASH, 2, 0, "Base name not found")
 
         file_path = os.path.join(self.data_dir, basename)
         if not valid_file(file_path):
             # root, status, progress
-            return ("00", 2, 0, "Invalid file path error")
+            return (ZERO_HASH, 2, 0, "Invalid file path error")
 
         (is_ready, result_path, progress) = self.register_action("submit", file_path, page_log2_size, tree_log2_size)
 
         if not is_ready:
             # root, status, progress
-            return ("00", 1, progress, "Submission in progress")
+            return (ZERO_HASH, 1, progress, "Submission in progress")
 
         with open(result_path, "r") as f:
             # root, status, progress
