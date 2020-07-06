@@ -211,9 +211,12 @@ class Logger:
             hashes = []
             padded_data = list(data)
             for x in range(int(self.__page_size/self.__bytes_of_word) - len(data)):
+                # padding zero to page size
                 padded_data.append(bytes(self.__bytes_of_word))
-            for x in range(int(self.__page_size/self.__bytes_of_word) - 3):
+            for x in range(int(self.__page_size/self.__bytes_of_word)):
                 k = sha3.keccak_256()
+                # padding zero to word size
+                padded_data[x] += b'0' * (self.__bytes_of_word - len(padded_data[x]))
                 k.update(padded_data[x])
                 hashes.append(bytes.fromhex(k.hexdigest()))
 
