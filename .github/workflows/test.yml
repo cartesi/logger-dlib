@@ -5,9 +5,11 @@ jobs:
     runs-on: ubuntu-18.04
     services:
         ganache:
-            image: trufflesuite/ganache-cli
+            image: cartesi/ganache-cli
             ports:
                 - 8545:8545
+            env:
+                MNEMONIC: "logger ci tests"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -22,7 +24,6 @@ jobs:
       - run: pip3 install -r requirements.txt
       
       - run: ./deploy_development.sh
-      - run: python3 test_logger.py
-        working-directory: test
+      - run: ./run_python_tests.sh
         env: 
           MNEMONIC: "logger ci tests"
