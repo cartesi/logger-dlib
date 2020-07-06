@@ -68,11 +68,11 @@ class Logger:
         
         self.__total_pages = 2**(self.__tree_log_2_size - self.__page_log_2_size)
         self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
-        self.__progress_per_page = 1/self.__total_pages * 100
+        self.__progress_per_page = 1/max(1, self.__total_pages) * 100
         self.__total_nodes = self.__total_pages * 2 - 1
         self.__progress_per_node = 1/self.__total_nodes * 100
         self.__total_pairs = self.__total_pages - 1
-        self.__progress_per_pair = 1/self.__total_pairs * 100
+        self.__progress_per_pair = 1/max(1, self.__total_pairs) * 100
         self.__recover_count = 0
 
         if (not self.__w3.isConnected()):
