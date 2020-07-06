@@ -41,8 +41,7 @@ print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
 test_logger = Logger(w3, deployed_address, logger_data['abi'])
 page_log2_size = 5
-tree_log2_size = 8
-test_logger.instantiate(page_log2_size, tree_log2_size)
+test_logger.instantiate(page_log2_size, page_log2_size)
 
 # test case 1
 data = []
@@ -52,7 +51,6 @@ data.append(bytes("54sd984s", 'utf-8'))
 data.append(bytes("df5a1ste", 'utf-8'))
 
 (index_1, root) = test_logger.submit_data_to_logger(data)
-
 assert root == bytes.fromhex("41635d7ab5ba446d0ffa701662a60aec0709b0f778f15745a631d070ccfa90f4"), "Hashes not match"
 print("Test case 1 passed!")
 
@@ -98,23 +96,16 @@ test_logger.download_file(root, output_file)
 assert filecmp.cmp(input_file, output_file), "Files not match"
 print("Test case 4 passed!")
 
-page_log2_size = 6
-test_logger.instantiate(page_log2_size, tree_log2_size)
+page_log2_size = 3
+test_logger.instantiate(page_log2_size, page_log2_size)
 
 # test case 5
 data = []
-data.append(bytes("est95192", 'utf-8'))
-data.append(bytes("51e5q1w9", 'utf-8'))
-data.append(bytes("54sd984s", 'utf-8'))
-data.append(bytes("df5a1ste", 'utf-8'))
-data.append(bytes("st951925", 'utf-8'))
-data.append(bytes("1e5sdqsa", 'utf-8'))
-data.append(bytes("12325245", 'utf-8'))
-data.append(bytes("99541234", 'utf-8'))
+data.append(bytes("est9", 'utf-8'))
 
 (index_3, root) = test_logger.submit_data_to_logger(data)
 
-assert root == bytes.fromhex("2bf37c10b1fd8c140f259f4fbbc5a6cc090cffd7edc7e4b8a4e53db7020876b6"), "Hashes not match"
+assert root == bytes.fromhex("c6ec4bd96e806e3794cb2c7de51c7e7c4dd319ef734557ed6b5cbe25358e5829"), "Hashes not match"
 print("Test case 5 passed!")
 
 # test case 6
@@ -126,7 +117,7 @@ indices.append(index_3)
 
 (index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
 
-assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
+assert root == bytes.fromhex("0db5d1146b631e9bf1c3f769485ad74e75225a67a02154ce8add7ac9f8a67274"), "Hashes not match"
 print("Test case 6 passed!")
 
 # test case 7
