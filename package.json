@@ -1,6 +1,6 @@
 {
   "name": "@cartesi/logger",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Logger DLib",
   "scripts": {
     "prepare": "truffle compile",
@@ -10,8 +10,8 @@
     "@cartesi/util": "^0.2.1"
   },
   "devDependencies": {
-    "@truffle/hdwallet-provider": "^1.0.36",
-    "truffle": "^5.1.32"
+    "@truffle/hdwallet-provider": "^1.0.40",
+    "truffle": "^5.1.37"
   },
   "repository": {
     "type": "git",
