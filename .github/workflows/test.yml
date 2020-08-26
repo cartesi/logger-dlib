@@ -8,8 +8,6 @@ jobs:
             image: cartesi/ganache-cli
             ports:
                 - 8545:8545
-            env:
-                MNEMONIC: "logger ci tests"
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -25,5 +23,3 @@ jobs:
       
       - run: ./deploy_development.sh
       - run: ./run_python_tests.sh
-        env: 
-          MNEMONIC: "logger ci tests"

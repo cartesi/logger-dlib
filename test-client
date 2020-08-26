@@ -6,8 +6,7 @@ export PYTHONPATH=${LOGGER_DIR}/proto:${LOGGER_DIR}/..
 
 if [[ -z "${MNEMONIC}" ]]; then
     if [[ -z "${CARTESI_CONCERN_KEY}" ]] || [[ -z "${CARTESI_CONCERN_ADDRESS}" ]]; then
-        echo "Error: either MNEMONIC or both CARTESI_CONCERN_KEY and CARTESI_CONCERN_ADDRESS must be defined!"
-        exit 1;
+        echo "Using eth_accounts[0] as signer"
     fi
 fi
 

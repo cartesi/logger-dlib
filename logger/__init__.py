@@ -28,7 +28,6 @@ from cobra_hdwallet import HDWallet
 DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONTRACT_PATH = '/opt/cartesi/share/blockchain/contracts/Logger.json'
 
-hdWallet = HDWallet()
 
 class Logger:
 
@@ -36,14 +35,21 @@ class Logger:
         self.__w3 = w3
 
         if "MNEMONIC" in os.environ:
+            # recreate wallet from MNEMONIC env variable
+            hdWallet = HDWallet()
             wallet = hdWallet.create_hdwallet(os.environ.get("MNEMONIC"),
                 '',
                 int(os.getenv("ACCOUNT_INDEX", default="0")))
             self.__key = bytes.fromhex(wallet['private_key'])
             self.__user = w3.toChecksumAddress(wallet['address'])
-        else:
+        elif ("CARTESI_CONCERN_KEY" in os.environ and "CARTESI_CONCERN_ADDRESS" in os.environ):
+            # read key and address from env variable
             self.__key = bytes.fromhex(os.environ.get("CARTESI_CONCERN_KEY"))
             self.__user = w3.toChecksumAddress(os.environ.get("CARTESI_CONCERN_ADDRESS"))
+        else:
+            # read address from eth server, key will not be used
+            self.__key = None
+            self.__user = self.__w3.eth.accounts[0]
 
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
         self.__bytes_of_word = 8
@@ -155,8 +161,15 @@ class Logger:
         return (False, 0)
 
     def __send_txn_to_logger(self, txn, isData):
-        signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
-        tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        
+        if self.__key is None:
+            # let eth server sign transaction
+            tx_hash = self.__w3.eth.sendTransaction(txn)
+        else:
+            # sign transaction using key, and send raw
+            signed_txn = self.__w3.eth.account.sign_transaction(txn, private_key=self.__key)
+            tx_hash = self.__w3.eth.sendRawTransaction(signed_txn.rawTransaction)
+
         tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
         if tx_receipt['status'] == 0:
             raise ValueError(tx_receipt['transactionHash'].hex())
