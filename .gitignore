@@ -15,3 +15,6 @@ node_modules
 build
 .venv
 .vscode
+artifacts
+src/types
+cache

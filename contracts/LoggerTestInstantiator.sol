@@ -1,5 +1,6 @@
 // Copyright (C) 2020 Cartesi Pte. Ltd.
 
+// SPDX-License-Identifier: GPL-3.0-only
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any later
@@ -21,13 +22,14 @@
 
 
 /// @title An instantiator of logger test
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
+import "@cartesi/util/contracts/InstantiatorImpl.sol";
 import "@cartesi/util/contracts/Decorated.sol";
 import "./LoggerTestInterface.sol";
 
 
-contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
+contract LoggerTestInstantiator is InstantiatorImpl, LoggerTestInterface, Decorated {
     // after construction, the test is in the Idle state and can be changed to Submitting,
     // an hash of the submitted data's root merkle tree will be stored in the contract
     // and then be changed to Downloading state
@@ -79,7 +81,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
     event LoggerTestFinished(uint256 _index, uint8 _state);
 
     constructor(
-        address _user) public {
+        address _user) {
         currentIndex = 0;
         LoggerTestCtx storage currentInstance = instance[currentIndex];
         currentInstance.user = _user;
@@ -117,7 +119,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
     }
 
     /// @notice Claim Finished for the logger test.
-    function claimFinished(uint256 _index) public
+    function claimFinished(uint256 _index) public override
         onlyInstantiated(_index)
         onlyBy(instance[_index].user)
     {
@@ -129,14 +131,14 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
     }
 
    function getSubInstances(uint256, address)
-        public view returns (address[] memory, uint256[] memory)
+        public override pure returns (address[] memory, uint256[] memory)
     {
         address[] memory a = new address[](0);
         uint256[] memory i = new uint256[](0);
         return (a, i);
     }
 
-    function isConcerned(uint256 _index, address _user) public view returns (bool) {
+    function isConcerned(uint256 _index, address _user) public override view returns (bool) {
         return (instance[_index].user == _user);
     }
 
@@ -171,7 +173,7 @@ contract LoggerTestInstantiator is LoggerTestInterface, Decorated {
         );
     }
 
-    function getCurrentState(uint256 _index) public view
+    function getCurrentState(uint256 _index) public override view
         onlyInstantiated(_index)
         returns (bytes32)
     {

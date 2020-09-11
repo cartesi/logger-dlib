@@ -1,5 +1,6 @@
 // Copyright (C) 2020 Cartesi Pte. Ltd.
 
+// SPDX-License-Identifier: GPL-3.0-only
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any later
@@ -20,7 +21,7 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "@cartesi/util/contracts/Decorated.sol";
 import "@cartesi/util/contracts/Merkle.sol";
@@ -130,7 +131,7 @@ contract Logger is Decorated, LoggerInterface {
 
     /// @notice Getter function to check if log has been submitted for the given hash
     // @param _root The hash value to check in the logger history
-    function isLogAvailable(bytes32 _root, uint64 _log2Size) public view returns(bool) {
+    function isLogAvailable(bytes32 _root, uint64 _log2Size) public override view returns(bool) {
         if (logSubmitted[_root]) {
             return ((dataHistory[logIndex[_root]].log2Size) == _log2Size);
         }

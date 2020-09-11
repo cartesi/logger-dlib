@@ -1,5 +1,6 @@
 // Copyright (C) 2020 Cartesi Pte. Ltd.
 
+// SPDX-License-Identifier: GPL-3.0-only
 // This program is free software: you can redistribute it and/or modify it under
 // the terms of the GNU General Public License as published by the Free Software
 // Foundation, either version 3 of the License, or (at your option) any later
@@ -21,20 +22,19 @@
 
 
 /// @title Interface for logger test instantiator
-pragma solidity ^0.5.0;
+pragma solidity ^0.7.0;
 
 import "@cartesi/util/contracts/Instantiator.sol";
 
 
-contract LoggerTestInterface is Instantiator {
+interface LoggerTestInterface is Instantiator {
     enum state {
         Idle,
         Submitting,
         Downloading,
         Finished
     }
-    function getCurrentState(uint256 _index) public view returns (bytes32);
+    function getCurrentState(uint256 _index) external view returns (bytes32);
 
-    function claimFinished(uint256 _index) public;
-    function isConcerned(uint256 _index, address _user) public view returns (bool);
+    function claimFinished(uint256 _index) external;
 }
