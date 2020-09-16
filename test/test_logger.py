@@ -29,14 +29,13 @@ from logger import Logger
 
 # start of main test
 
-fname = '../build/contracts/Logger.json'
+fname = '../deployments/localhost/Logger.json'
 with open(fname) as json_file:
     logger_data = json.load(json_file)
 
 networkId = w3.net.version
 print("Getting Logger contract address for network {} from {}".format(networkId, fname))
-assert networkId in logger_data['networks'], "Network " + networkId + " not found in " + fname
-deployed_address = logger_data['networks'][networkId]['address']
+deployed_address = logger_data['address']
 print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
 test_logger = Logger(w3, deployed_address, logger_data['abi'])
