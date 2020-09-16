@@ -63,18 +63,19 @@ const config: BuidlerConfig = {
             accounts: mnemonic ? { mnemonic } : undefined
         },
         ropsten: infuraNetwork("ropsten", 3, 6283185),
-        kovan: infuraNetwork("kovan", 42, 6283185),
         rinkeby: infuraNetwork("rinkeby", 4, 6283185),
+        kovan: infuraNetwork("kovan", 42, 6283185),
+        goerli: infuraNetwork("goerli", 5, 6283185),
         matic_testnet: {
-            url: "https://testnetv3.matic.network",
-            chainId: 15001,
+            url: "https://rpc-mumbai.matic.today",
+            chainId: 80001,
             accounts: mnemonic ? { mnemonic } : undefined
         },
         bsc_testnet: {
             url: "https://data-seed-prebsc-1-s1.binance.org:8545",
             chainId: 97,
             accounts: mnemonic ? { mnemonic } : undefined
-        }        
+        }   
     },
     solc: {
         version: "0.7.1",
@@ -87,6 +88,18 @@ const config: BuidlerConfig = {
         deploy: "deploy",
         deployments: "deployments"
     },
+    external: {
+        artifacts: ["node_modules/@cartesi/util/artifacts"],
+        deployments: {
+            localhost: ["node_modules/@cartesi/util/deployments/localhost"],
+            ropsten: ["node_modules/@cartesi/util/deployments/ropsten"],
+            rinkeby: ["node_modules/@cartesi/util/deployments/rinkeby"],
+            kovan: ["node_modules/@cartesi/util/deployments/kovan"],
+            goerli: ["node_modules/@cartesi/util/deployments/goerli"],
+            matic_testnet: ["node_modules/@cartesi/util/deployments/matic_testnet"],
+            bsc_testnet: ["node_modules/@cartesi/util/deployments/bsc_testnet"]
+        }
+    },    
     typechain: {
         outDir: "src/types",
         target: "ethers-v5"
