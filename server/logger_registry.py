@@ -126,8 +126,7 @@ class LoggerRegistryManager:
             with open(self.contract_path) as json_file:
                 logger_data = json.load(json_file)
                 logger_abi = logger_data['abi']
-                networkId = w3.net.version
-                deployed_address = logger_data['networks'][networkId]['address']
+                deployed_address = logger_data['address']
 
             logger_if = Logger(w3, deployed_address, logger_abi)
             logger_if.instantiate(page_log2_size, tree_log2_size)

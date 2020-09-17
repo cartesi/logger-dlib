@@ -66,7 +66,7 @@ parser.add_argument(
     '--contract_path', '-c',
     dest='contract_path',
     default=DEFAULT_CONTRACT_PATH,
-    help='Path for contract json file in truffle format (default: {})'.format(DEFAULT_CONTRACT_PATH)
+    help='Path for contract json file in buidler format (default: {})'.format(DEFAULT_CONTRACT_PATH)
 )
 
 # Getting arguments
@@ -75,8 +75,7 @@ args = parser.parse_args()
 with open(args.contract_path) as json_file:
     logger_data = json.load(json_file)
     logger_abi = logger_data['abi']
-    networkId = w3.net.version
-    deployed_address = logger_data['networks'][networkId]['address']
+    deployed_address = logger_data['address']
 
 test_logger = Logger(w3, deployed_address, logger_abi)
 # change this to automatic way

@@ -189,7 +189,7 @@ if __name__ == '__main__':
         '--contract_path', '-c',
         dest='contract_path',
         default=DEFAULT_CONTRACT_PATH,
-        help='Path for contract json file in truffle format (default: {})'.format(DEFAULT_CONTRACT_PATH)
+        help='Path for contract json file in buidler format (default: {})'.format(DEFAULT_CONTRACT_PATH)
     )
 
     serve(parser.parse_args())

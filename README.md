@@ -1,8 +1,8 @@
 # Logger DLib
 
-Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone the ability to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the migration script is written in Javascript (with the help of [Truffle](https://github.com/trufflesuite/truffle)), and the testing scripts are written in Python.
+Logger Dlib is the combination of the On-chain Logger and the Off-chain Logger module that together provide anyone the ability to submit their data and retrieve the data later with its merkle tree root hash. The on-chain contracts are written in Solidity, the off-chain module is written in Python, the on-chain deploy scripts are written in TypeScript (with the help of [Buidler](https://buidler.dev/plugins/buidler-deploy.html)), and the testing scripts are written in Python.
 
-The best way to use the Logger Dlib is through the grpc interface, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the `server` directory: `logger_server.py`, `test_client.py`.
+The best way to use the Logger Dlib is through the grpc interfaces, which are defined in the submodule `/grpc-interfaces/`. A grpc server and test client are implemented in Python in the `server` directory: `logger_server.py`, `test_client.py`.
 
 ## On-chain Logger
 (contracts directory)
@@ -143,7 +143,7 @@ optional arguments:
                         /Users/tuler/Documents/workspace/cartesi/logger-
                         dlib/logger)
   --contract_path CONTRACT_PATH, -c CONTRACT_PATH
-                        Path for contract json file in truffle format
+                        Path for contract json file in buidler format
                         (default:
                         /opt/cartesi/share/blockchain/contracts/Logger.json)
 ```
