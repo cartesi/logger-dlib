@@ -1,12 +1,13 @@
 import fs from "fs";
 import { Wallet } from "@ethersproject/wallet";
-import { BuidlerConfig, task, usePlugin } from "@nomiclabs/buidler/config";
-import { HttpNetworkConfig } from "@nomiclabs/buidler/types";
+import { HardhatUserConfig, task } from "hardhat/config";
+import { HttpNetworkUserConfig } from "hardhat/types";
 
-usePlugin("@nomiclabs/buidler-ethers");
-usePlugin("@nomiclabs/buidler-waffle");
-usePlugin("@nodefactory/buidler-typechain");
-usePlugin("buidler-deploy");
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
+import "hardhat-typechain";
+import "hardhat-deploy";
+
 
 // This is a sample Buidler task. To learn how to create your own go to
 // https://buidler.dev/guides/create-task.html
@@ -46,7 +47,7 @@ const infuraNetwork = (
     network: string,
     chainId?: number,
     gas?: number
-): HttpNetworkConfig => {
+): HttpNetworkUserConfig => {
     return {
         url: `https://${network}.infura.io/v3/${process.env.PROJECT_ID}`,
         chainId,
@@ -55,9 +56,9 @@ const infuraNetwork = (
     };
 };
 
-const config: BuidlerConfig = {
+const config: HardhatUserConfig = {
     networks: {
-        buidlerevm: mnemonic ? { accounts: mnemonicAccounts() } : {},
+        hardhat: mnemonic ? { accounts: mnemonicAccounts() } : {},
         localhost: {
             url: "http://localhost:8545",
             accounts: mnemonic ? { mnemonic } : undefined
@@ -77,10 +78,12 @@ const config: BuidlerConfig = {
             accounts: mnemonic ? { mnemonic } : undefined
         }   
     },
-    solc: {
-        version: "0.7.1",
-        optimizer: {
-            enabled: true
+    solidity: {
+        version: "0.7.4",
+        settings: {
+            optimizer: {
+                enabled: true
+            }
         }
     },
     paths: {
@@ -89,7 +92,7 @@ const config: BuidlerConfig = {
         deployments: "deployments"
     },
     external: {
-        artifacts: ["node_modules/@cartesi/util/artifacts"],
+        artifacts: ["node_modules/@cartesi/util/export/artifacts"],
         deployments: {
             localhost: ["node_modules/@cartesi/util/deployments/localhost"],
             ropsten: ["node_modules/@cartesi/util/deployments/ropsten"],
@@ -98,7 +101,8 @@ const config: BuidlerConfig = {
             goerli: ["node_modules/@cartesi/util/deployments/goerli"],
             matic_testnet: ["node_modules/@cartesi/util/deployments/matic_testnet"],
             bsc_testnet: ["node_modules/@cartesi/util/deployments/bsc_testnet"]
-        }
+        },
+        deploy: ["node_modules/@cartesi/util/dist/deploy"],
     },    
     typechain: {
         outDir: "src/types",

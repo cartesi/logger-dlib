@@ -19,3 +19,5 @@ artifacts
 src/types
 cache
 deployments
+dist
+*.download

@@ -19,24 +19,21 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import {
-    BuidlerRuntimeEnvironment,
-    DeployFunction
-} from "@nomiclabs/buidler/types";
-import { useOrDeploy } from "../src/helpers/useOrDeploy";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
 
-const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
+const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
-    const { deploy } = deployments;
+    const { deploy, get } = deployments;
     const { deployer } = await getNamedAccounts();
 
     // use pre-deployed Merkle, or deploy a new one (development/localhost)
-    const MerkleAddress = await useOrDeploy(bre, deployer, "Merkle");
+    const Merkle = await get('Merkle');
 
     await deploy("Logger", {
         from: deployer,
         libraries: {
-            Merkle: MerkleAddress
+            Merkle: Merkle.address
         },
         log: true
     });

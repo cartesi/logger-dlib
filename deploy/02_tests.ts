@@ -19,12 +19,10 @@
 // be used independently under the Apache v2 license. After this component is
 // rewritten, the entire component will be released under the Apache v2 license.
 
-import {
-    BuidlerRuntimeEnvironment,
-    DeployFunction
-} from "@nomiclabs/buidler/types";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
+import { DeployFunction } from "hardhat-deploy/types";
 
-const func: DeployFunction = async (bre: BuidlerRuntimeEnvironment) => {
+const func: DeployFunction = async (bre: HardhatRuntimeEnvironment) => {
     const { deployments, getNamedAccounts } = bre;
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
