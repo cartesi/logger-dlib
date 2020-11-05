@@ -7,13 +7,5 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "outDir": "dist"
-    },
-    "include": ["./src", "./scripts", "./deploy", "./test"],
-    "files": [
-        "hardhat.config.ts",
-        "node_modules/@nomiclabs/hardhat-ethers/dist/src/type-extensions.d.ts",
-        "node_modules/@nomiclabs/hardhat-waffle/dist/src/type-extensions.d.ts",
-        "node_modules/hardhat-typechain/dist/src/type-extensions.d.ts",
-        "node_modules/hardhat-deploy/dist/src/type-extensions.d.ts"
-    ]
+    }
 }
