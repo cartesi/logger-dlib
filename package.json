@@ -13,11 +13,11 @@
     "deploy": "run-s deploy:development",
     "deploy:testnet": "run-s deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet",
     "deploy:development": "hardhat deploy --network localhost",
-    "deploy:rinkeby": "hardhat deploy --network rinkeby",
-    "deploy:kovan": "hardhat deploy --network kovan",
-    "deploy:goerli": "hardhat deploy --network goerli",
-    "deploy:matic_testnet": "hardhat deploy --network matic_testnet",
-    "deploy:bsc_testnet": "hardhat deploy --network bsc_testnet",
+    "deploy:rinkeby": "hardhat deploy --network rinkeby --export export/abi/rinkeby.json",
+    "deploy:kovan": "hardhat deploy --network kovan --export export/abi/kovan.json",
+    "deploy:goerli": "hardhat deploy --network goerli --export export/abi/goerli.json",
+    "deploy:matic_testnet": "hardhat deploy --network matic_testnet --export export/abi/matic_testnet.json",
+    "deploy:bsc_testnet": "hardhat deploy --network bsc_testnet --export export/abi/bsc_testnet.json",
     "prepack": "run-s clean deploy:testnet",
     "start": "hardhat node"
   },
@@ -71,10 +71,15 @@
     "cartesi"
   ],
   "files": [
-    "artifacts",
     "contracts",
-    "deployments"
+    "deployments/*/*.json",
+    "deployments/*/.chainid",
+    "dist/src/types",
+    "dist/deploy/*.js",
+    "export"
   ],
+  "main": "./dist/src/types/index.js",
+  "types": "./dist/src/types/index.d.ts",
   "author": "Danilo Tuler <danilo.tuler@cartesi.io>",
   "license": "GPL-3.0-only"
 }
