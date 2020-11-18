@@ -19,6 +19,20 @@ The Off-chain Logger python module implements a class and multiple functions tha
 ## Testing with the On-chain contract using Off-chain module (unit test)
 (test directory)
 
+## Building the Docker image cartesi/logger-server
+
+To build the Docker image from the source use the following command
+```shell
+docker build . -t cartesi/logger-server:0.4.0 -t cartesi/logger-server:devel
+```
+### Building cartesi/logger-server for ARM
+
+For builds on ARM architecture, the Dockerfile contains an additional argument the can be specified to target ARM builds
+
+```shell
+docker build --build-arg ARCH=ARM . -t cartesi/logger-server:0.4.0 -t cartesi/logger-server:devel
+```
+
 ### Quick Start
 
 Run the following command to execute tests against the Logger contract
