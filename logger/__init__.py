@@ -71,7 +71,7 @@ class Logger:
         self.__submission_index_cache = {}
         self.__download_progress = 0
         self.__submission_progress = 0
-        
+
         self.__total_pages = 2**(self.__tree_log_2_size - self.__page_log_2_size)
         self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
         self.__progress_per_page = 1/max(1, self.__total_pages) * 100
@@ -99,32 +99,36 @@ class Logger:
         self.__download_progress = int(self.__recover_count * self.__progress_per_node)
 
     def __recover_data_from_root(self, root):
-
         try:
             cached_data = self.__download_cache.get(root)
             if cached_data is not None:
                 self.__update_download_progress()
                 return (True, cached_data)
 
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root})
+            events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root}).get_all_entries()
 
-            if(not len(merkle_filter.get_all_entries()) == 0):
+            if events:
+                event = events[0]['args']
                 self.__update_download_progress()
-                return (True, merkle_filter.get_all_entries()[0]['args']['_data'])
+                return (True, event['_data'])
 
             data = []
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root': root})
+            events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root': root}).get_all_entries()
 
-            if(not len(merkle_filter.get_all_entries()) == 0):
-                for index in merkle_filter.get_all_entries()[0]['args']['_indices']:
+            if events:
+                event = events[0]['args']
 
-                    retrieve_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index': index})
-                    if(len(retrieve_filter.get_all_entries()) == 0):
-                        retrieve_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index': index})
-                    root_at_index = retrieve_filter.get_all_entries()[0]['args']['_root']
+                for index in event['_indices']:
+                    retrieve_events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index': index}).get_all_entries()
+                    if not retrieve_events:
+                        retrieve_events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index': index}).get_all_entries()
 
-                    (ret_at_index, data_at_index) = self.__recover_data_from_root(root_at_index)
-                    data += data_at_index
+                    if retrieve_events:
+                        retrieve_event = retrieve_events[0]['args']
+                        root_at_index = retrieve_event['_root']
+
+                        (_, data_at_index) = self.__recover_data_from_root(root_at_index)
+                        data += data_at_index
 
                 self.__download_cache[root] = data
                 self.__update_download_progress()
@@ -135,10 +139,9 @@ class Logger:
             print(str(e))
 
     def __calculate_root_from_hashes(self, hashes):
-        
         while len(hashes) > 1:
             results = []
-            for x in range(int(len(hashes) / 2)):
+            for _ in range(int(len(hashes) / 2)):
                 left = hashes.pop(0)
                 right = hashes.pop(0)
 
@@ -150,18 +153,16 @@ class Logger:
         return hashes[0]
 
     def __get_index_from_root(self, root, log2_size):
-
         # check if submission exists in the history
         if self.__logger.functions.isLogAvailable(root, int(log2_size)).call():
             index = self.__logger.functions.getLogIndex(root).call()
             if(self.__debug):
                 print("find root %s in history %d" % (root.hex(), index))
             return (True, index)
-        
+
         return (False, 0)
 
     def __send_txn_to_logger(self, txn, isData):
-        
         if self.__key is None:
             # let eth server sign transaction
             tx_hash = self.__w3.eth.sendTransaction(txn)
@@ -173,21 +174,25 @@ class Logger:
         tx_receipt = self.__w3.eth.waitForTransactionReceipt(tx_hash)
         if tx_receipt['status'] == 0:
             raise ValueError(tx_receipt['transactionHash'].hex())
-        merkle_filter = None
+
+        events = []
         if isData:
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber'])
+            events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber']).get_all_entries()
         else:
-            merkle_filter = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber'])
-        merkle_root = merkle_filter.get_all_entries()[0]['args']['_root']
-        merkle_log2 = merkle_filter.get_all_entries()[0]['args']['_log2Size']
-        merkle_index = merkle_filter.get_all_entries()[0]['args']['_index']
+            events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber']).get_all_entries()
 
-        if(self.__debug):
-            print("root is: " + merkle_root.hex())
-            print("log2 is: " + str(merkle_log2))
-            print("index in the history is: " + str(merkle_index))
+        if events:
+            event = events[0]['args']
+            merkle_root = event['_root']
+            merkle_log2 = event['_log2Size']
+            merkle_index = event['_index']
 
-        return (merkle_index, merkle_root)
+            if(self.__debug):
+                print("root is: " + merkle_root.hex())
+                print("log2 is: " + str(merkle_log2))
+                print("index in the history is: " + str(merkle_index))
+
+            return (merkle_index, merkle_root)
 
     def get_download_progress(self):
         return self.__download_progress
@@ -196,7 +201,6 @@ class Logger:
         return self.__submission_progress
 
     def submit_indices_to_logger(self, log2_size, indices):
-
         try:
             # get hashes from history with index
             hashes = []
@@ -218,7 +222,6 @@ class Logger:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
 
     def submit_data_to_logger(self, data):
-
         try:
             # calculate hash locally
             hashes = []
@@ -248,7 +251,6 @@ class Logger:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
 
     def submit_file(self, filename):
-
         data = []
         indices = []
         root = bytes(32)
@@ -265,7 +267,7 @@ class Logger:
                     self.__submission_blob_cache[tuple(data)] = index
                 data = []
                 count -= 1
-                
+
                 self.__submission_progress = int(self.__progress_per_page/2 * (self.__total_pages - count))
 
         if(len(data) != 0):
@@ -310,15 +312,13 @@ class Logger:
         return root
 
     def download_file(self, root, filename):
-
         (succ, data) = self.__recover_data_from_root(root)
 
         bytes_count = 0
         for b in data:
             bytes_count += len(b)
 
-        if 2**(self.__tree_log_2_size) != bytes_count:
-            raise ValueError("Downloaded file({} bytes) doesn't match log2 size({})".format(bytes_count, self.__tree_log_2_size))
+        expected_size = 2**(self.__tree_log_2_size)
 
         if(succ):
             if(self.__debug):
@@ -326,5 +326,9 @@ class Logger:
             with open(filename, "wb") as f:
                 for b in data:
                     f.write(b)
+
+                if expected_size != bytes_count:
+                    f.truncate(expected_size)
+
         else:
             print("The Merkle root is not found in the Logger history")

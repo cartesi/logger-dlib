@@ -31,7 +31,7 @@ import grpc
 
 import logger_pb2_grpc
 import logger_pb2
-from logger_registry import LoggerRegistryManager
+from logger_registry import LoggerRegistryManager, valid_file
 from logger import DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
 LISTENING_ADDRESS = 'localhost'
@@ -85,11 +85,13 @@ class _Logger(logger_pb2_grpc.LoggerServicer):
             (path, status, progress, description) = self.logger_registry_manager.download_file(root, request.page_log2_size, request.tree_log2_size)
             new_path = os.path.join(self.logger_registry_manager.data_dir, request.path)
 
-            # move the file if is first time download
-            if os.path.exists(path) and os.path.isfile(path):
+            LOGGER.debug("path: %s, new_path: %s", path, new_path)
+
+            # copy the file if is first time download
+            if status == 0 and valid_file(path):
                 shutil.copy(path, new_path)
 
-            if os.path.exists(new_path) and os.path.isfile(new_path):
+            if status == 0 and valid_file(new_path):
                 return logger_pb2.DownloadFileResponse(path=new_path, status=status, progress=progress, description=description)
 
             return logger_pb2.DownloadFileResponse(path=path, status=status, progress=progress)
