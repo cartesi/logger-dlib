@@ -332,3 +332,5 @@ class Logger:
 
         else:
             print("The Merkle root is not found in the Logger history")
+
+        return succ

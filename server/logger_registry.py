@@ -103,37 +103,35 @@ class LoggerRegistryManager:
             if key in self.registry.keys():
                 # already contains the request of key
                 if self.registry[key].job is not None and self.registry[key].job.done():
-                    if action == "submit":
-                        root = self.registry[key].job.result()
-                        with open(result_path, "w") as f:
-                            f.write(root.hex())
+                    if self.registry[key].job.result():
+                        if action == "submit":
+                            root = self.registry[key].job.result()
+                            with open(result_path, "w") as f:
+                                f.write(root.hex())
 
-                    LOGGER.debug("Clear job and logger_if as done")
-                    self.registry[key].job = None
-                    self.registry[key].logger_if = None
-                    return (True, result_path, 100)
+                        self.registry[key].job = None
+                        self.registry[key].logger_if = None
+                        return (True, result_path, 100)
+                    else:
+                        LOGGER.error("Logger failed to complete task")
 
                 if valid_file(result_path):
-                    LOGGER.debug("Result file found")
                     return (True, result_path, 100)
 
                 if self.registry[key].logger_if:
-                    LOGGER.debug("Update progress")
                     progress = 0
                     if action == "submit":
                         progress = self.registry[key].logger_if.get_submission_progress()
                     else:
                         progress = self.registry[key].logger_if.get_download_progress()
-                    
+
                     return (False, result_path, progress)
 
-            LOGGER.debug("Request not found in registry")
             with open(self.contract_path) as json_file:
                 logger_data = json.load(json_file)
                 logger_abi = logger_data['abi']
                 deployed_address = logger_data['address']
 
-            LOGGER.debug("address: %s, abi: %s", deployed_address, logger_abi)
             logger_if = Logger(w3, deployed_address, logger_abi)
             logger_if.instantiate(page_log2_size, tree_log2_size)
 
