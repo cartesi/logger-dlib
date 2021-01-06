@@ -4,10 +4,10 @@ jobs:
   test:
     runs-on: ubuntu-18.04
     services:
-        ganache:
-            image: trufflesuite/ganache-cli
+        hardhat:
+            image: ethereumoptimism/hardhat
             ports:
-                - 8545:8545
+                - 8545:9545
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
@@ -19,6 +19,6 @@ jobs:
         with:
             python-version: '3.6'
       - run: pip3 install -r requirements.txt
-      
+
       - run: yarn run deploy
       - run: ./run_python_tests.sh
