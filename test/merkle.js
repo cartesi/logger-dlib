@@ -73,7 +73,7 @@ function computeMerkleRootHash(buffer) {
     // computes keccak256 hash for each array entry (leaves in the merkle tree)
     const hashes = [];
     for (let i = 0; i < dataEntries.length; i++) {
-        const data = `0x${dataEntries[i].toString('hex')}`;
+        const data = ethers.utils.hexlify(dataEntries[i]);
         hashes.push(ethers.utils.solidityKeccak256(["bytes8"], [data]));
         console.debug(`${i} - Data: '${data}' ; Hash: ${hashes[i]}`);
     }
