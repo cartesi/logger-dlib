@@ -1,7 +1,22 @@
 const ethers = require('ethers')
+const createKeccakHash = require('keccak')
 const fs = require('fs')
 
-const emptyDataHashes = ['0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce'];
+/**
+ * Holds pre-computed keccak256 hash for empty data entries on each level of the merkle tree (0 corresponds to the leaves)
+ * - The leaf level hash for an empty 8-byte data entry is pre-computed
+ * - Hashes for others levels are computed on demand by #getEmptyTreeHash
+ */
+const emptyDataHashes = [Buffer.from(ethers.utils.arrayify('0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce'))];
+
+/**
+ * Computes the 256 bit keccak hash
+ * 
+ * @param {any} data data to be hashed
+ */
+function keccak256(data) {
+    return createKeccakHash('keccak256').update(data).digest();
+}
 
 /**
  * Turns buffer into an array of 8-byte data entries
@@ -45,9 +60,9 @@ function getEmptyTreeHash(level) {
     } else {
         // computes hash for empty data at the specified level by considering a pair of hashes for empty data at level-1
         const lowerLevelHash = getEmptyTreeHash(level-1);
-        const hash = ethers.utils.solidityKeccak256(["bytes32","bytes32"], [lowerLevelHash, lowerLevelHash]);
+        const hash = keccak256(Buffer.concat([lowerLevelHash,lowerLevelHash]));
         emptyDataHashes[level] = hash;
-        // console.debug(`Computed empty hash for level ${level}: ${hash}`);
+        // console.debug(`Hash L${level} EMPTY: ${ethers.utils.hexlify(hash)}`);
         return hash;
     }
 }
@@ -70,9 +85,9 @@ function computeMerkleRootHashFromHashes(hashes, level, rootLevel) {
         for (let i = 0; i < hashes.length; i += 2) {
             const hash1 = hashes[i];
             const hash2 = (i === hashes.length - 1) ? getEmptyTreeHash(level) : hashes[i+1];
-            let hash = ethers.utils.solidityKeccak256(["bytes32","bytes32"], [hash1, hash2]);
+            let hash = keccak256(Buffer.concat([hash1,hash2]));
             upperLevelHashes.push(hash);
-            // console.debug(`Hash ${i}+${i+1}: ${hash}`);
+            // console.debug(`Hash L${level} ${i}+${i+1}: ${ethers.utils.hexlify(hash)}`);
         }
         return computeMerkleRootHashFromHashes(upperLevelHashes, level+1, rootLevel);
     }    
@@ -98,14 +113,13 @@ function computeMerkleRootHash(buffer) {
     // computes keccak256 hash for each array entry (leaves in the merkle tree)
     const hashes = [];
     for (let i = 0; i < dataEntries.length; i++) {
-        const data = ethers.utils.hexlify(dataEntries[i]);
-        hashes.push(ethers.utils.solidityKeccak256(["bytes8"], [data]));
-        // console.debug(`${i} - Data: '${data}' ; Hash: ${hashes[i]}`);
+        hashes.push(keccak256(dataEntries[i]));
+        // console.debug(`${i} - Data: '${ethers.utils.hexlify(dataEntries[i])}' ; Hash: ${ethers.utils.hexlify(hashes[i])}`);
     }
 
     // calculates merkle root hash by recursively computing the keccak256 of the concatenation of each data entry pair
     const rootHash = computeMerkleRootHashFromHashes(hashes, 0, rootLevel);
-    return rootHash;
+    return ethers.utils.hexlify(rootHash);
 }
 
 async function main() {
