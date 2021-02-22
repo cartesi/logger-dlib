@@ -54,7 +54,7 @@ contract Logger is Decorated, LoggerInterface {
 
     /// @notice Calculate the Merkle tree and return the root hash
     // @param _hashes The array of words of the file
-    function calculateMerkleRootFromData(uint64 _log2Size, bytes8[] memory _data) public returns(bytes32) {
+    function calculateMerkleRootFromData(uint64 _log2Size, bytes8[] memory _data) public override returns(bytes32) {
         require(_log2Size >= 3, "Has to be at least one word");
         require(_log2Size <= 64, "Cannot be bigger than the machine itself");
         require(_data.length > 0, "The input array cannot be empty");

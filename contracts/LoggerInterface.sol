@@ -27,4 +27,6 @@ pragma solidity ^0.7.0;
 
 interface LoggerInterface {
     function isLogAvailable(bytes32 _root, uint64 _log2Size) external view returns(bool);
+
+    function calculateMerkleRootFromData(uint64 _log2Size, bytes8[] memory _data) external returns(bytes32);
 }
