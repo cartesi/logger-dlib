@@ -67,6 +67,7 @@ COPY ./logger/ $BASE/share/logger
 COPY ./cobra_hdwallet/ $BASE/share/cobra_hdwallet
 COPY ./logger-server $BASE/bin/logger-server
 COPY ./logger-entrypoint.sh $BASE/bin/logger-entrypoint.sh
+COPY ./simple-logger $BASE/bin/simple-logger
 
 EXPOSE 50051
 
