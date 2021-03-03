@@ -122,7 +122,9 @@ def configure_log():
 def check_data_directory(directory):
     data_dir = os.path.realpath(os.path.expanduser(os.path.expandvars(directory)))
     if not os.path.exists(data_dir):
-        raise FileNotFoundError("Data directory doesn't exist: {}".format(directory))
+        os.mkdir(data_dir)
+        if not os.path.exists(data_dir):
+            raise FileNotFoundError("Data directory doesn't exist and could not be created: {}".format(directory))
     if not os.path.isdir(data_dir):
         raise NotADirectoryError("Data path is not a directory: {}".format(directory))
     if not os.access(data_dir, os.W_OK):
