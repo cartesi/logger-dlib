@@ -7,9 +7,9 @@
         "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src",
         "export": "hardhat export-artifacts export/artifacts",
         "info": "npm-scripts-info",
-        "prepare": "run-s build copy-dts export",
+        "prepare": "run-s clean build copy-dts export",
         "test": "hardhat test",
-        "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/*",
+        "clean": "rimraf artifacts && rimraf cache && rimraf deployments/localhost && rimraf src/types/* && rimraf dist",
         "deploy": "run-s deploy:development",
         "deploy:testnet": "run-s deploy:rinkeby deploy:kovan deploy:goerli deploy:matic_testnet deploy:bsc_testnet deploy:avax_testnet",
         "deploy:development": "hardhat deploy --network localhost",
@@ -19,7 +19,7 @@
         "deploy:matic_testnet": "hardhat deploy --network matic_testnet --export export/abi/matic_testnet.json",
         "deploy:bsc_testnet": "hardhat deploy --network bsc_testnet --export export/abi/bsc_testnet.json",
         "deploy:avax_testnet": "hardhat deploy --network avax_testnet --export export/abi/avax_testnet.json",
-        "prepack": "run-s clean deploy:testnet",
+        "prepack": "run-s deploy:testnet",
         "start": "hardhat node"
     },
     "scripts-info": {
