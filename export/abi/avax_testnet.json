@@ -1,9 +1,9 @@
 {
-  "name": "bsc_testnet",
-  "chainId": "97",
+  "name": "avax_testnet",
+  "chainId": "43113",
   "contracts": {
     "Logger": {
-      "address": "0x1c207Ed29b77641DB12d256Ad55D079d40601e6E",
+      "address": "0xdB96468910d81BA6085eb9FE258f0DEF3cA8aA9A",
       "abi": [
         {
           "anonymous": false,
@@ -193,7 +193,7 @@
       ]
     },
     "BitsManipulationLibrary": {
-      "address": "0xc411FDBCac6537051A4339FD30823467D573bE64",
+      "address": "0xdecac9ff6b588642887414e85dfdde740a797f56",
       "abi": [
         {
           "inputs": [
@@ -284,7 +284,7 @@
       ]
     },
     "CartesiMath": {
-      "address": "0x0eA9fB188804da5449A424C6cAac3dAA63370E60",
+      "address": "0x50bEFaEfD3AAaFac11Fd936A8dfEB1050eC5Cf00",
       "abi": [
         {
           "inputs": [
@@ -327,7 +327,7 @@
       ]
     },
     "Merkle": {
-      "address": "0xD47860593fe40b3D0E04460e54bFE0b84E1E6922",
+      "address": "0x89f1f1bc37Ef872ff0073bee7eE6d6B0D94Fd166",
       "abi": [
         {
           "inputs": [
@@ -471,7 +471,7 @@
       ]
     },
     "WorkerAuthManagerImpl": {
-      "address": "0x85C1929cC1794dd7c25d16d095a09318Cc57d174",
+      "address": "0x3F62ccC0e41287ea4d28dce6582a215B75bB43fd",
       "abi": [
         {
           "inputs": [
@@ -616,7 +616,7 @@
       ]
     },
     "WorkerManagerAuthManagerImpl": {
-      "address": "0x4b637E2957C96BA8892A6C51259F35C803Dd913F",
+      "address": "0x7db3A9BdA16D1C295b23B94a61808EFf82288269",
       "abi": [
         {
           "anonymous": false,
@@ -992,7 +992,7 @@
       ]
     },
     "WorkerManagerImpl": {
-      "address": "0x767F4294434be981447B6d23f9565d02A6858fF2",
+      "address": "0x91E780568A1FEdd5d01E1c1E4cAed68E3a849345",
       "abi": [
         {
           "anonymous": false,
