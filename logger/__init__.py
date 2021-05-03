@@ -54,6 +54,8 @@ class Logger:
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
         self.__bytes_of_word = 8
         self.__debug = False
+        self.__MerkleRootCalculatedFromDataHash = self.__w3.keccak(text="MerkleRootCalculatedFromData(uint256,bytes8[],bytes32,uint64)")
+        self.__MerkleRootCalculatedFromHistoryHash = self.__w3.keccak(text="MerkleRootCalculatedFromHistory(uint256,uint256[],bytes32,uint64)")
 
     def instantiate(self, page_log2_size, tree_log2_size):
         self.__page_log_2_size = page_log2_size
@@ -81,6 +83,11 @@ class Logger:
         self.__progress_per_pair = 1/max(1, self.__total_pairs) * 100
         self.__recover_count = 0
 
+        # event logs cache
+        self.__next_block_number = 0
+        self.__block_step = 1000000
+        self.__logs = []
+
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
             sys.exit(1)
@@ -98,6 +105,64 @@ class Logger:
         self.__recover_count += 1
         self.__download_progress = int(self.__recover_count * self.__progress_per_node)
 
+    def __get_all_contract_logs(self):
+        block_number = self.__w3.eth.blockNumber
+        from_block = self.__next_block_number
+
+        while from_block <= block_number:
+            to_block = min(from_block + self.__block_step - 1, block_number)
+
+            get_logs = self.__w3.eth.getLogs(
+            {
+                'fromBlock': from_block,
+                'toBlock': to_block,
+                'address': self.__logger.address})
+
+            self.__logs.extend(get_logs)
+            self.__next_block_number = to_block + 1
+
+            from_block += self.__block_step
+
+        return self.__logs
+
+    def __filter_logs_history(self, logs):
+        events = []
+        for log in logs:
+            if log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
+                event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
+                events.append(event)
+
+        return events
+
+    def __filter_logs_data(self, logs):
+        events = []
+        for log in logs:
+            if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
+                event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
+                events.append(event)
+
+        return events
+
+    def __search_logs_root(self, root):
+        for log in self.__logs:
+            event = None
+            if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
+                event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
+            elif log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
+                event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
+            if event and event['args']['_root'] == root:
+                    return event
+
+    def __search_logs_index(self, index):
+        for log in self.__logs:
+            event = None
+            if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
+                event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
+            elif log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
+                event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
+            if event and event['args']['_index'] == index:
+                return event
+
     def __recover_data_from_root(self, root):
         try:
             cached_data = self.__download_cache.get(root)
@@ -105,52 +170,37 @@ class Logger:
                 self.__update_download_progress()
                 return (True, cached_data)
 
-            events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_root': root}).get_all_entries()
+            logs = self.__get_all_contract_logs()
+            event = self.__search_logs_root(root)
 
-            if events:
-                event = events[0]['args']
-                self.__update_download_progress()
-                return (True, event['_data'])
+            if event:
+                if event['event'] == 'MerkleRootCalculatedFromData':
+                    args = event['args']
+                    self.__update_download_progress()
+                    return (True, args['_data'])
+                else:
+                    # MerkleRootCalculatedFromHistory
+                    data = []
+                    args = event['args']
 
-            data = []
-            events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_root': root}).get_all_entries()
+                    for index in args['_indices']:
+                        index_event = self.__search_logs_index(index)
 
-            if events:
-                event = events[0]['args']
+                        if index_event:
+                            index_args = index_event['args']
+                            root_at_index = index_args['_root']
 
-                for index in event['_indices']:
-                    retrieve_events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=0, argument_filters={'_index': index}).get_all_entries()
-                    if not retrieve_events:
-                        retrieve_events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=0, argument_filters={'_index': index}).get_all_entries()
+                            (_, data_at_index) = self.__recover_data_from_root(root_at_index)
+                            data += data_at_index
 
-                    if retrieve_events:
-                        retrieve_event = retrieve_events[0]['args']
-                        root_at_index = retrieve_event['_root']
+                    self.__download_cache[root] = data
+                    self.__update_download_progress()
+                    return (True, data)
 
-                        (_, data_at_index) = self.__recover_data_from_root(root_at_index)
-                        data += data_at_index
-
-                self.__download_cache[root] = data
-                self.__update_download_progress()
-                return (True, data)
             return (False, [])
 
         except ValueError as e:
             print(str(e))
-
-    def __calculate_root_from_hashes(self, hashes):
-        while len(hashes) > 1:
-            results = []
-            for _ in range(int(len(hashes) / 2)):
-                left = hashes.pop(0)
-                right = hashes.pop(0)
-
-                k = sha3.keccak_256()
-                k.update(left + right)
-                results.append(bytes.fromhex(k.hexdigest()))
-            hashes = results
-
-        return hashes[0]
 
     def __get_index_from_root(self, root, log2_size):
         # check if submission exists in the history
@@ -177,9 +227,9 @@ class Logger:
 
         events = []
         if isData:
-            events = self.__logger.events.MerkleRootCalculatedFromData.createFilter(fromBlock=tx_receipt['blockNumber']).get_all_entries()
+            events = self.__filter_logs_data(tx_receipt['logs'])
         else:
-            events = self.__logger.events.MerkleRootCalculatedFromHistory.createFilter(fromBlock=tx_receipt['blockNumber']).get_all_entries()
+            events = self.__filter_logs_history(tx_receipt['logs'])
 
         if events:
             event = events[0]['args']
@@ -207,7 +257,7 @@ class Logger:
             for x in indices:
                 hashes.append(self.__logger.functions.getLogRoot(x).call())
 
-            root = self.__calculate_root_from_hashes(hashes)
+            root = calculate_root_from_hashes(hashes)
 
             (exists, index) = self.__get_index_from_root(root, log2_size + math.log2(len(indices)))
             if exists:
@@ -236,7 +286,7 @@ class Logger:
                 k.update(padded_data[x])
                 hashes.append(bytes.fromhex(k.hexdigest()))
 
-            root = self.__calculate_root_from_hashes(hashes)
+            root = calculate_root_from_hashes(hashes)
 
             (exists, index) = self.__get_index_from_root(root, self.__page_log_2_size)
             if exists:
@@ -334,3 +384,17 @@ class Logger:
             print("The Merkle root is not found in the Logger history")
 
         return succ
+
+def calculate_root_from_hashes(hashes):
+        while len(hashes) > 1:
+            results = []
+            for _ in range(int(len(hashes) / 2)):
+                left = hashes.pop(0)
+                right = hashes.pop(0)
+
+                k = sha3.keccak_256()
+                k.update(left + right)
+                results.append(bytes.fromhex(k.hexdigest()))
+            hashes = results
+
+        return hashes[0]
