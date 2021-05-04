@@ -110,7 +110,7 @@ def configure_log():
 
     # Stream log handler
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.DEBUG)
+    stream_handler.setLevel(logging.INFO)
     stream_handler.setFormatter(formatter)
 
     # Configuring root logger
