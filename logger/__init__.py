@@ -52,6 +52,7 @@ class Logger:
             self.__user = self.__w3.eth.accounts[0]
 
         self.__logger = self.__w3.eth.contract(address=logger_address, abi=logger_abi)
+        self.__log2_bytes_of_word = 3
         self.__bytes_of_word = 8
         self.__debug = False
         self.__MerkleRootCalculatedFromDataHash = self.__w3.keccak(text="MerkleRootCalculatedFromData(uint256,bytes8[],bytes32,uint64)")
@@ -163,45 +164,6 @@ class Logger:
             if event and event['args']['_index'] == index:
                 return event
 
-    def __recover_data_from_root(self, root):
-        try:
-            cached_data = self.__download_cache.get(root)
-            if cached_data is not None:
-                self.__update_download_progress()
-                return (True, cached_data)
-
-            logs = self.__get_all_contract_logs()
-            event = self.__search_logs_root(root)
-
-            if event:
-                if event['event'] == 'MerkleRootCalculatedFromData':
-                    args = event['args']
-                    self.__update_download_progress()
-                    return (True, args['_data'])
-                else:
-                    # MerkleRootCalculatedFromHistory
-                    data = []
-                    args = event['args']
-
-                    for index in args['_indices']:
-                        index_event = self.__search_logs_index(index)
-
-                        if index_event:
-                            index_args = index_event['args']
-                            root_at_index = index_args['_root']
-
-                            (_, data_at_index) = self.__recover_data_from_root(root_at_index)
-                            data += data_at_index
-
-                    self.__download_cache[root] = data
-                    self.__update_download_progress()
-                    return (True, data)
-
-            return (False, [])
-
-        except ValueError as e:
-            print(str(e))
-
     def __get_index_from_root(self, root, log2_size):
         # check if submission exists in the history
         if self.__logger.functions.isLogAvailable(root, int(log2_size)).call():
@@ -270,6 +232,53 @@ class Logger:
 
         except ValueError as e:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
+
+    def recover_data_from_root(self, root):
+        try:
+            cached_data = self.__download_cache.get(root)
+            if cached_data is not None:
+                self.__update_download_progress()
+                return (True, cached_data)
+
+            logs = self.__get_all_contract_logs()
+            event = self.__search_logs_root(root)
+
+            if event:
+                if event['event'] == 'MerkleRootCalculatedFromData':
+                    args = event['args']
+                    data = args['_data']
+                    log2_size = args['_log2Size']
+                    expected_size = 2 ** (log2_size - self.__log2_bytes_of_word)
+
+                    for x in range(expected_size - len(data)):
+                        # padding zero to expected log2 size
+                        data.append(bytes(self.__bytes_of_word))
+
+                    self.__update_download_progress()
+                    return (True, data)
+                else:
+                    # MerkleRootCalculatedFromHistory
+                    data = []
+                    args = event['args']
+
+                    for index in args['_indices']:
+                        index_event = self.__search_logs_index(index)
+
+                        if index_event:
+                            index_args = index_event['args']
+                            root_at_index = index_args['_root']
+
+                            (_, data_at_index) = self.recover_data_from_root(root_at_index)
+                            data += data_at_index
+
+                    self.__download_cache[root] = data
+                    self.__update_download_progress()
+                    return (True, data)
+
+            return (False, [])
+
+        except ValueError as e:
+            print(str(e))
 
     def submit_data_to_logger(self, data):
         try:
@@ -362,7 +371,7 @@ class Logger:
         return root
 
     def download_file(self, root, filename):
-        (succ, data) = self.__recover_data_from_root(root)
+        (succ, data) = self.recover_data_from_root(root)
 
         bytes_count = 0
         for b in data:
