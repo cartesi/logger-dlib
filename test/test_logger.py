@@ -22,6 +22,7 @@
 import sys
 import json
 import filecmp
+import logger
 from web3.auto import w3
 
 sys.path.append('../logger/')
@@ -81,7 +82,50 @@ indices.append(index_2)
 assert root == bytes.fromhex("599b88906b87ebe8c111c26198887c218de8b16a1963b9d3a0f6eb02107c4f24"), "Hashes not match"
 print("Test case 3 passed!")
 
-# test case 4
+page_log2_size = 6
+test_logger.instantiate(page_log2_size, page_log2_size)
+
+# test case 4 with auto padding
+data = []
+data.append(bytes("est95192", 'utf-8'))
+data.append(bytes("51e5q1w9", 'utf-8'))
+data.append(bytes("54sd984s", 'utf-8'))
+data.append(bytes("df5a1ste", 'utf-8'))
+
+(index_4, root) = test_logger.submit_data_to_logger(data)
+assert root == bytes.fromhex("ae0df637400a5b2c22b21f6280214266fea45cd3cf58e7830a0d721662c5c946"), "Hashes not match"
+print("Test case 4 passed!")
+
+# test case 5
+
+padded_data = data
+for _ in range(4):
+    padded_data.append(bytes(8))
+
+(suc, recovered_data) = test_logger.recover_data_from_root(root)
+
+assert suc, "Recover should succeed"
+assert padded_data == recovered_data, "Recovered data should include padded zeros"
+
+# test case 6
+indices = []
+indices.append(index_4)
+indices.append(index_4)
+
+(index_6, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
+assert root == bytes.fromhex("3ce0972884faae1df9a367972dc9ac262a2302306d9e51d627545775422b0793"), "Hashes not match"
+print("Test case 6 passed!")
+
+# test case 7
+
+padded_data += padded_data
+
+(suc, recovered_data) = test_logger.recover_data_from_root(root)
+
+assert suc, "Recover should succeed"
+assert padded_data == recovered_data, "Recovered data should include padded zeros"
+
+# test case 8
 page_log2_size = 10
 tree_log2_size = 20
 test_logger.instantiate(page_log2_size, tree_log2_size)
@@ -93,21 +137,21 @@ root = test_logger.submit_file(input_file)
 test_logger.download_file(root, output_file)
 
 assert filecmp.cmp(input_file, output_file), "Files not match"
-print("Test case 4 passed!")
+print("Test case 8 passed!")
 
 page_log2_size = 3
 test_logger.instantiate(page_log2_size, page_log2_size)
 
-# test case 5
+# test case 9
 data = []
 data.append(bytes("est9", 'utf-8'))
 
 (index_3, root) = test_logger.submit_data_to_logger(data)
 
 assert root == bytes.fromhex("c6ec4bd96e806e3794cb2c7de51c7e7c4dd319ef734557ed6b5cbe25358e5829"), "Hashes not match"
-print("Test case 5 passed!")
+print("Test case 9 passed!")
 
-# test case 6
+# test case 10
 indices = []
 indices.append(index_3)
 indices.append(index_3)
@@ -117,9 +161,9 @@ indices.append(index_3)
 (index_3, root) = test_logger.submit_indices_to_logger(page_log2_size, indices)
 
 assert root == bytes.fromhex("0db5d1146b631e9bf1c3f769485ad74e75225a67a02154ce8add7ac9f8a67274"), "Hashes not match"
-print("Test case 6 passed!")
+print("Test case 10 passed!")
 
-# test case 7
+# test case 11
 page_log2_size = 8
 tree_log2_size = 20
 test_logger.instantiate(page_log2_size, tree_log2_size)
@@ -131,67 +175,67 @@ root = test_logger.submit_file(input_file)
 test_logger.download_file(root, output_file)
 
 assert filecmp.cmp(input_file, output_file), "Files not match"
-print("Test case 7 passed!")
+print("Test case 11 passed!")
 
 page_log2_size = 10
 tree_log2_size = 20
 test_logger.instantiate(page_log2_size, tree_log2_size)
 
-# test case 8
+# test case 12
 input_file = "0-00.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("cd9665e5ea391d134dfbe45ca04a55ef8adf164dbc4c40ad31ae185f8f1af923"), "Hashes not match"
-print("Test case 8 passed!")
+print("Test case 12 passed!")
 
-# test case 9
+# test case 13
 input_file = "0-01.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("117fea97b997fe7e3b85dc5783aa161001c325a7e95a297c8668e087a70c282a"), "Hashes not match"
-print("Test case 9 passed!")
+print("Test case 13 passed!")
 
-# test case 10
+# test case 14
 input_file = "0-02.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("296833044d8a51958bf4eb4e3f20c4d070a1a96b8dbc31d7ca771c999391a8af"), "Hashes not match"
-print("Test case 10 passed!")
+print("Test case 14 passed!")
 
-# test case 11
+# test case 15
 input_file = "0-03.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("f188e44f55b7f05c2b746d88670f7c4c8d3728626bcaf4859cfd35a3b903f313"), "Hashes not match"
-print("Test case 11 passed!")
+print("Test case 15 passed!")
 
-# test case 12
+# test case 16
 input_file = "0-04.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("655382e190b6cf44f0df8a8cd97331a63e9b7c678d0a4c783fb3a176a27f5f3e"), "Hashes not match"
-print("Test case 12 passed!")
+print("Test case 16 passed!")
 
-# test case 13
+# test case 17
 input_file = "0-05.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("bf7fc30e5e81cc99adc3c4abcd28c8ebcd84b75314011a9cb5d331361e7782ab"), "Hashes not match"
-print("Test case 13 passed!")
+print("Test case 17 passed!")
 
-# test case 14
+# test case 18
 input_file = "0-06.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("3fb2f3a2da3b7016648e91f04ef78ccd5c8ac8c471bc0f2f7cf7c9517f653ce7"), "Hashes not match"
-print("Test case 14 passed!")
+print("Test case 18 passed!")
 
-# test case 15
+# test case 19
 input_file = "0-07.json.br.tar"
 root = test_logger.submit_file(input_file)
 
 assert root == bytes.fromhex("bff9861e078c0edaf8d7d0f164e6582d7926bc5e7c9248a95eb3d2a38bb7f0b5"), "Hashes not match"
-print("Test case 15 passed!")
+print("Test case 19 passed!")
 
 page_log2_size = 10
 tree_log2_size = 20
@@ -201,49 +245,49 @@ root = bytes.fromhex("cd9665e5ea391d134dfbe45ca04a55ef8adf164dbc4c40ad31ae185f8f
 output_file = "0-00.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 16 passed!")
+print("Test case 20 passed!")
 
 root = bytes.fromhex("117fea97b997fe7e3b85dc5783aa161001c325a7e95a297c8668e087a70c282a")
 output_file = "0-01.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 17 passed!")
+print("Test case 21 passed!")
 
 root = bytes.fromhex("296833044d8a51958bf4eb4e3f20c4d070a1a96b8dbc31d7ca771c999391a8af")
 output_file = "0-02.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 18 passed!")
+print("Test case 22 passed!")
 
 root = bytes.fromhex("f188e44f55b7f05c2b746d88670f7c4c8d3728626bcaf4859cfd35a3b903f313")
 output_file = "0-03.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 19 passed!")
+print("Test case 23 passed!")
 
 root = bytes.fromhex("655382e190b6cf44f0df8a8cd97331a63e9b7c678d0a4c783fb3a176a27f5f3e")
 output_file = "0-04.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 20 passed!")
+print("Test case 24 passed!")
 
 root = bytes.fromhex("bf7fc30e5e81cc99adc3c4abcd28c8ebcd84b75314011a9cb5d331361e7782ab")
 output_file = "0-05.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 21 passed!")
+print("Test case 25 passed!")
 
 root = bytes.fromhex("3fb2f3a2da3b7016648e91f04ef78ccd5c8ac8c471bc0f2f7cf7c9517f653ce7")
 output_file = "0-06.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 22 passed!")
+print("Test case 26 passed!")
 
 root = bytes.fromhex("bff9861e078c0edaf8d7d0f164e6582d7926bc5e7c9248a95eb3d2a38bb7f0b5")
 output_file = "0-07.json.br.tar.download"
 
 test_logger.download_file(root, output_file)
-print("Test case 23 passed!")
+print("Test case 27 passed!")
 
 # end of test
 print("All tests passed!")
