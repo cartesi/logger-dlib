@@ -25,13 +25,14 @@ import sha3
 import math
 from cobra_hdwallet import HDWallet
 
+DEFAULT_BLOCK_RANGE = 1e6
 DEFAULT_DATA_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONTRACT_PATH = '/opt/cartesi/share/blockchain/contracts/Logger.json'
 
 
 class Logger:
 
-    def __init__(self, w3, logger_address, logger_abi):
+    def __init__(self, w3, logger_address, logger_abi, block_range):
         self.__w3 = w3
 
         if "MNEMONIC" in os.environ:
@@ -55,6 +56,7 @@ class Logger:
         self.__log2_bytes_of_word = 3
         self.__bytes_of_word = 8
         self.__debug = False
+        self.__block_range = int(block_range)
         self.__MerkleRootCalculatedFromDataHash = self.__w3.keccak(text="MerkleRootCalculatedFromData(uint256,bytes8[],bytes32,uint64)")
         self.__MerkleRootCalculatedFromHistoryHash = self.__w3.keccak(text="MerkleRootCalculatedFromHistory(uint256,uint256[],bytes32,uint64)")
 
@@ -62,11 +64,11 @@ class Logger:
         self.__page_log_2_size = page_log2_size
         self.__tree_log_2_size = tree_log2_size
         self.__page_size = 2**self.__page_log_2_size
-        self.__tree_size = 2**self.__tree_log_2_size
+        # self.__tree_size = 2**self.__tree_log_2_size
         self.__download_cache = {}
         # submission cache from on-chain logger
         # map {hash} value to {index} in logger history
-        self.__submission_root_cache = {}
+        # self.__submission_root_cache = {}
         # local cache
         # map {bytes} blob to {index}
         self.__submission_blob_cache = {}
@@ -74,9 +76,11 @@ class Logger:
         self.__submission_index_cache = {}
         self.__download_progress = 0
         self.__submission_progress = 0
+        # map {index} to event
+        self.__index_event_cache = {}
 
         self.__total_pages = 2**(self.__tree_log_2_size - self.__page_log_2_size)
-        self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
+        # self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
         self.__progress_per_page = 1/max(1, self.__total_pages) * 100
         self.__total_nodes = self.__total_pages * 2 - 1
         self.__progress_per_node = 1/self.__total_nodes * 100
@@ -84,14 +88,11 @@ class Logger:
         self.__progress_per_pair = 1/max(1, self.__total_pairs) * 100
         self.__recover_count = 0
 
-        # event logs cache
-        self.__next_block_number = 0
-        self.__block_step = 1000000
-        self.__logs = []
-
         if (not self.__w3.isConnected()):
             print("Couldn't connect to node, exiting")
             sys.exit(1)
+
+        self.__next_block_number = self.__w3.eth.blockNumber
 
     def __bytes_from_file(self, filename):
         with open(filename, "rb") as f:
@@ -106,25 +107,15 @@ class Logger:
         self.__recover_count += 1
         self.__download_progress = int(self.__recover_count * self.__progress_per_node)
 
-    def __get_all_contract_logs(self):
-        block_number = self.__w3.eth.blockNumber
-        from_block = self.__next_block_number
+    # def __get_next_logs(self):
+    #     get_logs = self.__w3.eth.getLogs(
+    #     {
+    #         'fromBlock': 0,
+    #         'address': self.__logger.address
+    #     })
 
-        while from_block <= block_number:
-            to_block = min(from_block + self.__block_step - 1, block_number)
+    #     self.__logs.extend(get_logs)
 
-            get_logs = self.__w3.eth.getLogs(
-            {
-                'fromBlock': from_block,
-                'toBlock': to_block,
-                'address': self.__logger.address})
-
-            self.__logs.extend(get_logs)
-            self.__next_block_number = to_block + 1
-
-            from_block += self.__block_step
-
-        return self.__logs
 
     def __filter_logs_history(self, logs):
         events = []
@@ -144,25 +135,55 @@ class Logger:
 
         return events
 
+    def __process_log_to_event(self, log):
+        event = None
+        if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
+            event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
+        elif log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
+            event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
+        return event
+
     def __search_logs_root(self, root):
-        for log in self.__logs:
-            event = None
-            if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
-                event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
-            elif log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
-                event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
-            if event and event['args']['_root'] == root:
-                    return event
+        index = self.__logger.functions.getLogIndex(root).call()
+
+        return self.__search_logs_index(index)
 
     def __search_logs_index(self, index):
-        for log in self.__logs:
-            event = None
-            if log['topics'][0] == self.__MerkleRootCalculatedFromDataHash:
-                event = self.__logger.events.MerkleRootCalculatedFromData().processLog(log)
-            elif log['topics'][0] == self.__MerkleRootCalculatedFromHistoryHash:
-                event = self.__logger.events.MerkleRootCalculatedFromHistory().processLog(log)
-            if event and event['args']['_index'] == index:
-                return event
+        cached_event = self.__index_event_cache.get(index)
+        if cached_event is not None:
+            return cached_event
+
+        data_logs = []
+        hex_index = "{0:#0{1}x}".format(index, 66)
+
+        if self.__block_range > 0:
+            to_block = self.__next_block_number
+
+            while to_block >= 0 and len(data_logs) == 0:
+                from_block = max(to_block - self.__block_range + 1, 0)
+
+                data_logs = self.__w3.eth.getLogs(
+                {
+                    'fromBlock': from_block,
+                    'toBlock': to_block,
+                    'address': self.__logger.address,
+                    'topics': [None, hex_index]
+                })
+
+                self.__next_block_number = from_block - 1
+                to_block -= self.__block_range
+        else:
+            data_logs = self.__w3.eth.getLogs(
+            {
+                'fromBlock': 0,
+                'address': self.__logger.address,
+                'topics': [None, hex_index]
+            })
+
+        if len(data_logs) > 0:
+            event = self.__process_log_to_event(data_logs[0])
+            self.__index_event_cache[index] = event
+            return event
 
     def __get_index_from_root(self, root, log2_size):
         # check if submission exists in the history
@@ -240,7 +261,6 @@ class Logger:
                 self.__update_download_progress()
                 return (True, cached_data)
 
-            logs = self.__get_all_contract_logs()
             event = self.__search_logs_root(root)
 
             if event:
@@ -254,6 +274,7 @@ class Logger:
                         # padding zero to expected log2 size
                         data.append(bytes(self.__bytes_of_word))
 
+                    self.__download_cache[root] = data
                     self.__update_download_progress()
                     return (True, data)
                 else:

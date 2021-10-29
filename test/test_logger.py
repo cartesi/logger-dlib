@@ -39,7 +39,7 @@ print("Getting Logger contract address for network {} from {}".format(networkId,
 deployed_address = logger_data['address']
 print("Using Logger({}) at network {}".format(deployed_address, networkId))
 
-test_logger = Logger(w3, deployed_address, logger_data['abi'])
+test_logger = Logger(w3, deployed_address, logger_data['abi'], 0)
 page_log2_size = 5
 test_logger.instantiate(page_log2_size, page_log2_size)
 

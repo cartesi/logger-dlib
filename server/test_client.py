@@ -76,13 +76,17 @@ def run():
                 # Download
                 print("\n\nDOWNLOAD TESTS\n\n")
 
-                root = logger_pb2.Hash(content=bytes.fromhex("9a8d49468b9592705f608525928c3e53771c176da25f84f78dec7433a3416bea"))
-                request = logger_pb2.DownloadFileRequest(path="recovered_file", root=root, page_log2_size=10, tree_log2_size=20)
-                print("Asking to download a new file")
-                response = stub.DownloadFile(request)
-                print("Server response path:\n{}".format(response.path))
-                print("Server response status:\n{}".format(response.status))
-                print("Server response progress:\n{}".format(response.progress))
+                while True:
+                    root = logger_pb2.Hash(content=bytes.fromhex("667d2a455a3f9bfca3c2557e58beb177c3fd2116bc2920788da2510074142088"))
+                    request = logger_pb2.DownloadFileRequest(path="recovered_file", root=root, page_log2_size=3, tree_log2_size=17)
+                    print("Asking to download a new file")
+                    response = stub.DownloadFile(request)
+                    print("Server response path:\n{}".format(response.path))
+                    print("Server response status:\n{}".format(response.status))
+                    print("Server response progress:\n{}".format(response.progress))
+                    time.sleep(3)
+                    if response.progress == 100:
+                        break
             else:
                 raise Exception("Unknown mode")
 

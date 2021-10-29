@@ -77,7 +77,7 @@ with open(args.contract_path) as json_file:
     logger_abi = logger_data['abi']
     deployed_address = logger_data['address']
 
-test_logger = Logger(w3, deployed_address, logger_abi)
+test_logger = Logger(w3, deployed_address, logger_abi, 0)
 # change this to automatic way
 test_logger.instantiate(args.blob_log2_size, args.tree_log2_size)
 

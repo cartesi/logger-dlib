@@ -47,7 +47,7 @@ def valid_file(path):
 
 class LoggerRegistryManager:
 
-    def __init__(self, directory, contract_path):
+    def __init__(self, directory, contract_path, block_range):
         if directory is None:
             raise ValueError()
         self.data_dir = directory
@@ -56,6 +56,7 @@ class LoggerRegistryManager:
         self.registry = {}
         self.shutting_down = False
         self.executor = futures.ThreadPoolExecutor(max_workers=10)
+        self.block_range = block_range
 
     def submit_file(self, filename, page_log2_size, tree_log2_size):
 
@@ -132,7 +133,7 @@ class LoggerRegistryManager:
                 logger_abi = logger_data['abi']
                 deployed_address = logger_data['address']
 
-            logger_if = Logger(w3, deployed_address, logger_abi)
+            logger_if = Logger(w3, deployed_address, logger_abi, self.block_range)
             logger_if.instantiate(page_log2_size, tree_log2_size)
 
             job = None

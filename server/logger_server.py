@@ -32,7 +32,7 @@ import grpc
 import logger_pb2_grpc
 import logger_pb2
 from logger_registry import LoggerRegistryManager, valid_file
-from logger import DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
+from logger import DEFAULT_BLOCK_RANGE, DEFAULT_CONTRACT_PATH, DEFAULT_DATA_DIR
 
 LISTENING_ADDRESS = 'localhost'
 LISTENING_PORT = 50051
@@ -43,7 +43,7 @@ LOGGER = logging.getLogger(__name__)
 # status: 0 -> finished successfully
 #         1 -> working on it, not ready yet
 #         2 -> invalid argument
-#         3 -> service not available, shutting down   
+#         3 -> service not available, shutting down
 
 class _Logger(logger_pb2_grpc.LoggerServicer):
 
@@ -138,7 +138,7 @@ def serve(arguments):
     data_dir = check_data_directory(arguments.data_directory)
 
     # TODO: include a validation for the contract file
-    logger_registry_manager = LoggerRegistryManager(data_dir, arguments.contract_path)
+    logger_registry_manager = LoggerRegistryManager(data_dir, arguments.contract_path, arguments.block_range)
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     logger_pb2_grpc.add_LoggerServicer_to_server(_Logger(logger_registry_manager), server)
 
@@ -195,5 +195,12 @@ if __name__ == '__main__':
         default=DEFAULT_CONTRACT_PATH,
         help='Path for contract json file in buidler format (default: {})'.format(DEFAULT_CONTRACT_PATH)
     )
+    parser.add_argument(
+        '--block_range', '-b',
+        dest='block_range',
+        type=int,
+        default=DEFAULT_BLOCK_RANGE,
+        help='Default block range (default: {})'.format(DEFAULT_BLOCK_RANGE)
+        )
 
     serve(parser.parse_args())
