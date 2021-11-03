@@ -85,8 +85,6 @@ class Logger:
             print("Couldn't connect to node, exiting")
             sys.exit(1)
 
-        self.__next_block_number = self.__w3.eth.blockNumber
-
     def __bytes_from_file(self, filename):
         with open(filename, "rb") as f:
             while True:
@@ -140,7 +138,7 @@ class Logger:
         hex_index = "{0:#0{1}x}".format(index, 66)
 
         if self.__block_range > 0:
-            to_block = self.__next_block_number
+            to_block = self.__w3.eth.blockNumber
 
             while to_block >= 0 and len(data_logs) == 0:
                 from_block = max(to_block - self.__block_range + 1, 0)
@@ -153,7 +151,6 @@ class Logger:
                     'topics': [None, hex_index]
                 })
 
-                self.__next_block_number = from_block - 1
                 to_block -= self.__block_range
         else:
             data_logs = self.__w3.eth.getLogs(
