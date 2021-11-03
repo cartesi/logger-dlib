@@ -4,20 +4,20 @@ jobs:
   test:
     runs-on: ubuntu-18.04
     services:
-        hardhat:
-            image: ethereumoptimism/hardhat
-            ports:
-                - 8545:9545
+      hardhat:
+        image: ethereumoptimism/hardhat
+        ports:
+          - 8545:8545
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-            node-version: '14'
+          node-version: "14"
       - run: yarn install
 
       - uses: actions/setup-python@v1
         with:
-            python-version: '3.6'
+          python-version: "3.6"
       - run: pip3 install -r requirements.txt
 
       - run: yarn run deploy
