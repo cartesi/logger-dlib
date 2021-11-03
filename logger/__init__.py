@@ -64,15 +64,9 @@ class Logger:
         self.__page_log_2_size = page_log2_size
         self.__tree_log_2_size = tree_log2_size
         self.__page_size = 2**self.__page_log_2_size
-        # self.__tree_size = 2**self.__tree_log_2_size
         self.__download_cache = {}
-        # submission cache from on-chain logger
-        # map {hash} value to {index} in logger history
-        # self.__submission_root_cache = {}
         # local cache
-        # map {bytes} blob to {index}
         self.__submission_blob_cache = {}
-        # map {indices} tuple to {index}
         self.__submission_index_cache = {}
         self.__download_progress = 0
         self.__submission_progress = 0
@@ -80,7 +74,6 @@ class Logger:
         self.__index_event_cache = {}
 
         self.__total_pages = 2**(self.__tree_log_2_size - self.__page_log_2_size)
-        # self.__total_levels = (self.__tree_log_2_size - self.__page_log_2_size)
         self.__progress_per_page = 1/max(1, self.__total_pages) * 100
         self.__total_nodes = self.__total_pages * 2 - 1
         self.__progress_per_node = 1/self.__total_nodes * 100
@@ -106,16 +99,6 @@ class Logger:
     def __update_download_progress(self):
         self.__recover_count += 1
         self.__download_progress = int(self.__recover_count * self.__progress_per_node)
-
-    # def __get_next_logs(self):
-    #     get_logs = self.__w3.eth.getLogs(
-    #     {
-    #         'fromBlock': 0,
-    #         'address': self.__logger.address
-    #     })
-
-    #     self.__logs.extend(get_logs)
-
 
     def __filter_logs_history(self, logs):
         events = []
