@@ -207,6 +207,23 @@ class Logger:
 
             return (merkle_index, merkle_root)
 
+    def __get_padded_data(self, data_event):
+        try:
+            if data_event['event'] == 'MerkleRootCalculatedFromData':
+                args = data_event['args']
+                data = args['_data']
+                log2_size = args['_log2Size']
+                expected_size = 2 ** (log2_size - self.__log2_bytes_of_word)
+
+                for x in range(expected_size - len(data)):
+                    # padding zero to expected log2 size
+                    data.append(bytes(self.__bytes_of_word))
+
+                return data
+
+        except Exception as e:
+            print("fail to get padded data from event: " + str(e))
+
     def get_download_progress(self):
         return self.__download_progress
 
@@ -235,44 +252,37 @@ class Logger:
             print("calculateMerkleRoot REVERT transaction: " + str(e))
 
     def recover_data_from_root(self, root):
+        index = self.__logger.functions.getLogIndex(root).call()
+
+        return self.recover_data_from_index(index)
+
+    def recover_data_from_index(self, index):
         try:
-            cached_data = self.__download_cache.get(root)
+            cached_data = self.__download_cache.get(index)
             if cached_data is not None:
                 self.__update_download_progress()
                 return (True, cached_data)
 
-            event = self.__search_logs_root(root)
+            event = self.__search_logs_index(index)
 
             if event:
                 if event['event'] == 'MerkleRootCalculatedFromData':
-                    args = event['args']
-                    data = args['_data']
-                    log2_size = args['_log2Size']
-                    expected_size = 2 ** (log2_size - self.__log2_bytes_of_word)
+                    data = self.__get_padded_data(event)
 
-                    for x in range(expected_size - len(data)):
-                        # padding zero to expected log2 size
-                        data.append(bytes(self.__bytes_of_word))
-
-                    self.__download_cache[root] = data
+                    self.__download_cache[index] = data
                     self.__update_download_progress()
                     return (True, data)
                 else:
                     # MerkleRootCalculatedFromHistory
                     data = []
                     args = event['args']
+                    indices = args['_indices']
 
-                    for index in args['_indices']:
-                        index_event = self.__search_logs_index(index)
+                    for sub_index in indices:
+                        (_, data_at_index) = self.recover_data_from_index(sub_index)
+                        data += data_at_index
 
-                        if index_event:
-                            index_args = index_event['args']
-                            root_at_index = index_args['_root']
-
-                            (_, data_at_index) = self.recover_data_from_root(root_at_index)
-                            data += data_at_index
-
-                    self.__download_cache[root] = data
+                    self.__download_cache[index] = data
                     self.__update_download_progress()
                     return (True, data)
 

@@ -106,6 +106,7 @@ for _ in range(4):
 
 assert suc, "Recover should succeed"
 assert padded_data == recovered_data, "Recovered data should include padded zeros"
+print("Test case 5 passed!")
 
 # test case 6
 indices = []
@@ -124,6 +125,7 @@ padded_data += padded_data
 
 assert suc, "Recover should succeed"
 assert padded_data == recovered_data, "Recovered data should include padded zeros"
+print("Test case 7 passed!")
 
 # test case 8
 page_log2_size = 10
