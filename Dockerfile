@@ -1,3 +1,4 @@
+
 FROM node:12-alpine as onchain
 
 ENV BASE /opt/cartesi
@@ -46,9 +47,17 @@ ENV TIMEOUT 120s
 # ----------------------------------------------------
 RUN apk add --no-cache openssl libstdc++
 ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+
+ARG ARCH
+
+ENV ARCH_E ${ARCH}
+
+RUN if [ "$ARCH_E" = "ARM" ] ; then wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-armhf-$DOCKERIZE_VERSION.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-armhf-$DOCKERIZE_VERSION.tar.gz \
+    && rm dockerize-linux-armhf-$DOCKERIZE_VERSION.tar.gz \
+	; else wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz ; fi
 
 WORKDIR $BASE
 
