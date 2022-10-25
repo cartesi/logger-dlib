@@ -1,4 +1,4 @@
-FROM node:12-alpine as onchain
+FROM node:16-alpine as onchain
 
 ENV BASE /opt/cartesi
 WORKDIR $BASE/share/blockchain

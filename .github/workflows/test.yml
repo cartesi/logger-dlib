@@ -5,9 +5,15 @@ jobs:
     runs-on: ubuntu-18.04
     services:
       hardhat:
-        image: ethereumoptimism/hardhat
+        image: ethereumoptimism/hardhat-node
         ports:
           - 8545:8545
+        options: >-
+          --health-cmd "nc localhost 8545 < /dev/null"
+          --health-interval 30s
+          --health-timeout 10s
+          --health-retries 5
+          --health-start-period 30s
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
