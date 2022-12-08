@@ -1,7 +1,7 @@
 astroid==2.3.3
 attrdict==2.0.1
 base58==0.2.2
-certifi==2019.11.28
+certifi==2022.12.7
 chardet==3.0.4
 cytoolz==0.10.1
 ecdsa==0.13.3
