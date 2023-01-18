@@ -1,6 +1,6 @@
 {
     "name": "@cartesi/logger",
-    "version": "0.7.4",
+    "version": "0.8.0",
     "description": "Logger DLib",
     "scripts": {
         "build": "hardhat compile && tsc",
