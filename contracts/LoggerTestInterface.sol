@@ -22,12 +22,12 @@
 
 
 /// @title Interface for logger test instantiator
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-import "@cartesi/util/contracts/Instantiator.sol";
+import "@cartesi/util/contracts/InstantiatorV2.sol";
 
 
-interface LoggerTestInterface is Instantiator {
+interface LoggerTestInterface is InstantiatorV2 {
     enum state {
         Idle,
         Submitting,
