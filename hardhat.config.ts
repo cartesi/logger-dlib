@@ -54,14 +54,6 @@ const config: HardhatUserConfig = {
             accounts: mnemonic ? { mnemonic } : undefined,
         },
     },
-    solidity: {
-        version: "0.7.4",
-        settings: {
-            optimizer: {
-                enabled: true,
-            },
-        },
-    },
     paths: {
         artifacts: "artifacts",
         deploy: "deploy",
@@ -87,6 +79,26 @@ const config: HardhatUserConfig = {
                 "node_modules/@cartesi/util/deployments/avax_testnet",
             ],
         },
+    },
+    solidity: {
+        compilers: [
+            {
+                version: "0.7.4",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                    },
+                },
+            },
+            {
+                version: "0.8.15",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                    },
+                },
+            },
+        ],
     },
     typechain: {
         outDir: "src/types",

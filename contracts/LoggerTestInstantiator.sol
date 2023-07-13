@@ -22,14 +22,14 @@
 
 
 /// @title An instantiator of logger test
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-import "@cartesi/util/contracts/InstantiatorImpl.sol";
-import "@cartesi/util/contracts/Decorated.sol";
+import "@cartesi/util/contracts/InstantiatorImplV2.sol";
+import "@cartesi/util/contracts/DecoratedV2.sol";
 import "./LoggerTestInterface.sol";
 
 
-contract LoggerTestInstantiator is InstantiatorImpl, LoggerTestInterface, Decorated {
+contract LoggerTestInstantiator is InstantiatorImplV2, LoggerTestInterface, DecoratedV2 {
     // after construction, the test is in the Idle state and can be changed to Submitting,
     // an hash of the submitted data's root merkle tree will be stored in the contract
     // and then be changed to Downloading state

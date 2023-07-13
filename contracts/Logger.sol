@@ -21,10 +21,10 @@
 // rewritten, the entire component will be released under the Apache v2 license.
 
 
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-import "@cartesi/util/contracts/Decorated.sol";
-import "@cartesi/util/contracts/Merkle.sol";
+import "@cartesi/util/contracts/DecoratedV2.sol";
+import "@cartesi/util/contracts/MerkleV3.sol";
 import "./LoggerInterface.sol";
 
 
@@ -32,7 +32,7 @@ import "./LoggerInterface.sol";
 /// @author Stephen Chen
 /// @notice A contract that offers data availability
 /// @dev This contract is not well-tested yet.
-contract Logger is Decorated, LoggerInterface {
+contract Logger is DecoratedV2, LoggerInterface {
   // the caller can either provide the full data to generate the Merkle tree root
   // or combine the existing hashes in the history to a deeper tree
 

@@ -22,7 +22,7 @@
 
 
 /// @title Interface for logger test instantiator
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
 
 interface LoggerInterface {
